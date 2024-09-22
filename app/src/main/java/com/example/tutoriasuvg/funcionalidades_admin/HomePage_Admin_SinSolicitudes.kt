@@ -19,7 +19,7 @@ import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 @Composable
 fun HomePageAdminSinSolicitudesScreen() {
     Scaffold(
-        topBar = { AppBar() }, 
+        topBar = { AppBar() },
         bottomBar = { AdminBottomNavigationBar() }
     ) { paddingValues ->
         Box(
