@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.tutoriasuvg.login.LoginScreenError
+import com.example.tutoriasuvg.signup.RegisterScreenError
+import com.example.tutoriasuvg.signup.RegisterStudentTutorScreenError
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +22,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TutoriasUVGTheme {
-
+                RegisterScreenError()
                 }
             }
         }
