@@ -68,7 +68,7 @@ fun RegisterScreen(){
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.letras_uvg),
+                    painter = painterResource(id = R.drawable.logo_uvg),
                     contentDescription = "Logo en letras UVG",
                     modifier = Modifier
                         .size(150.dp)
