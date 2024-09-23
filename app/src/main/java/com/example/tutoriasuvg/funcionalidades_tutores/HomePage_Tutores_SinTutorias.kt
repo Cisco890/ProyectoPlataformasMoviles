@@ -48,11 +48,11 @@ fun AppBar() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.header_logo_uvg),
+                    painter = painterResource(id = R.drawable.logo_uvg_letras),
                     contentDescription = "Logo UVG",
                     modifier = Modifier
                         .padding(8.dp)
-                        .size(50.dp)
+                        .size(150.dp)
                 )
             }
         },
