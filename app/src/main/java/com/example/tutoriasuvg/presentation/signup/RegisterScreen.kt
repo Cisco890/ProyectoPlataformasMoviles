@@ -27,6 +27,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,15 +43,25 @@ import androidx.compose.ui.unit.dp
 import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
+import androidx.compose.material3.*
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.*
 
 @Composable
-fun RegisterScreen(){
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var isTutor by remember { mutableStateOf(false) }
-    var showSnackbar by remember { mutableStateOf(false) }
+fun RegisterScreen(
+    onBackToLogin: () -> Unit,
+    viewModel: RegisterViewModel = viewModel()
+){
+    val name by viewModel.name.collectAsState()
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val confirmPassword by viewModel.confirmPassword.collectAsState()
+    val isTutor by viewModel.isTutor.collectAsState()
+
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -92,14 +103,14 @@ fun RegisterScreen(){
                 )
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = { viewModel.onNameChanged(it) },
                     label = { Text("Nombre completo") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
                     singleLine = true,
                     trailingIcon = {
-                        IconButton(onClick = { name = "" }){
+                        IconButton(onClick = { viewModel.onNameChanged("") }){
                             Icon(imageVector = Icons.Default.Close,
                                 contentDescription = "Limpiar nombre"
                             )
@@ -108,7 +119,7 @@ fun RegisterScreen(){
                 )
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = { viewModel.onEmailChanged(it) },
                     label = { Text("Correo Institucional") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -116,7 +127,7 @@ fun RegisterScreen(){
                     singleLine = true,
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email),
                     trailingIcon = {
-                        IconButton(onClick = { email = "" }) {
+                        IconButton(onClick = { viewModel.onEmailChanged("") }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Limpiar correo"
@@ -126,7 +137,7 @@ fun RegisterScreen(){
                 )
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { viewModel.onPasswordChanged(it) },
                     label = { Text("Contraseña") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -134,7 +145,7 @@ fun RegisterScreen(){
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { password = "" }) {
+                        IconButton(onClick = { viewModel.onPasswordChanged("") }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Limpiar contraseña"
@@ -144,7 +155,7 @@ fun RegisterScreen(){
                 )
                 OutlinedTextField(
                     value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
+                    onValueChange = { viewModel.onConfirmPasswordChanged(it) },
                     label = { Text("Verifique Contraseña") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -152,7 +163,7 @@ fun RegisterScreen(){
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { confirmPassword = "" }) {
+                        IconButton(onClick = { viewModel.onConfirmPasswordChanged("") }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Limpiar verificación contraseña"
@@ -168,7 +179,7 @@ fun RegisterScreen(){
                 ){
                     Checkbox(
                         checked = isTutor,
-                        onCheckedChange = { isTutor = it },
+                        onCheckedChange = { viewModel.onTutorChecked(it) },
                         colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.primary)
                     )
                     Text(
@@ -198,10 +209,10 @@ fun RegisterScreen(){
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun RegisterScreenErrorPreview() {
-    TutoriasUVGTheme {
-        RegisterScreen()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun RegisterScreenErrorPreview() {
+//    TutoriasUVGTheme {
+//        RegisterScreen()
+//    }
+//}

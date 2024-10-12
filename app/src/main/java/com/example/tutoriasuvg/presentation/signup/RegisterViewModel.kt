@@ -2,40 +2,42 @@ package com.example.tutoriasuvg.presentation.signup
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class RegisterViewModel : ViewModel() {
-    var name = mutableStateOf("")
-        private set
+    private val _name = MutableStateFlow("")
+    val name: StateFlow<String> = _name
 
-    var email = mutableStateOf("")
-        private set
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email
 
-    var password = mutableStateOf("")
-        private set
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password
 
-    var confirmPassword = mutableStateOf("")
-        private set
+    private val _confirmPassword = MutableStateFlow("")
+    val confirmPassword: StateFlow<String> = _confirmPassword
 
-    var isTutor = mutableStateOf(false)
-        private set
+    private val _isTutor = MutableStateFlow(false)
+    val isTutor: MutableStateFlow<Boolean> = _isTutor
 
-    fun onNameChanged(newName: String) {
-        name.value = newName
+    fun onNameChanged(newName: String){
+        _name.value = newName
     }
 
-    fun onEmailChanged(newEmail: String) {
-        email.value = newEmail
+    fun onEmailChanged(newEmail: String){
+        _email.value = newEmail
     }
 
-    fun onPasswordChanged(newPasswordCanged: String) {
-        password.value = newPasswordCanged
+    fun onPasswordChanged(newPassword: String){
+        _password.value = newPassword
     }
 
-    fun onConfirmPasswordChanged(newConfirmPassword: String) {
-        confirmPassword.value = newConfirmPassword
+    fun onConfirmPasswordChanged(newConfirmPassword: String){
+        _confirmPassword.value = newConfirmPassword
     }
 
-    fun onTutorChecked(isChecked: Boolean) {
-        isTutor.value = isChecked
+    fun onTutorChecked(isChecked: Boolean){
+        _isTutor.value = isChecked
     }
 }

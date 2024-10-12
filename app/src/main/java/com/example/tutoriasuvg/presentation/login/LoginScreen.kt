@@ -43,7 +43,11 @@ import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = viewModel()){
+fun LoginScreen(
+    onNavigateToRegister: () -> Unit,
+    onNavigateTForgotPassword: () -> Unit,
+    viewModel: LoginViewModel = viewModel()
+){
     val email = viewModel.email.value
     val password = viewModel.password.value
     val showError = viewModel.showError.value
@@ -139,11 +143,23 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()){
                     Text(text = "Sign In", fontSize = 16.sp)
                 }
                 TextButton(
-                    onClick = { /* Lógica para registrarse */ },
+                    onClick = onNavigateToRegister,
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
                     Text(
                         text = "¿Aún no tienes cuenta? Regístrate acá",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+
+                TextButton(
+                    onClick = onNavigateTForgotPassword,
+                    modifier = Modifier.padding(top = 16.dp)
+                ) {
+                    Text(
+                        text = "¿Olvidaste tu contraseña",
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.secondary
@@ -154,10 +170,10 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()){
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenErrorPreview(){
-    TutoriasUVGTheme {
-        LoginScreen()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun LoginScreenErrorPreview(){
+//    TutoriasUVGTheme {
+//        LoginScreen()
+//    }
+//}
