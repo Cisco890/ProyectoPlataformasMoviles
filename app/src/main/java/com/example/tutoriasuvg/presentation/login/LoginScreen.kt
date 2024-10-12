@@ -1,11 +1,10 @@
-package com.example.tutoriasuvg.login
+package com.example.tutoriasuvg.presentation.login
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
-import androidx.compose.ui.graphics.BlendMode.Companion.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -37,15 +36,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 
 @Composable
-fun LoginScreenError(){
-    var email by remember { mutableStateOf("")}
-    var password by remember { mutableStateOf("") }
-    var showError by remember { mutableStateOf(false) }
+fun LoginScreen(viewModel: LoginViewModel = viewModel()){
+    val email = viewModel.email.value
+    val password = viewModel.password.value
+    val showError = viewModel.showError.value
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -81,7 +82,7 @@ fun LoginScreenError(){
                 )
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it},
+                    onValueChange = { viewModel.onEmailChanged(it) },
                     label = { Text("Correo Institucional")},
                     modifier = Modifier
                         .fillMaxWidth()
@@ -97,7 +98,7 @@ fun LoginScreenError(){
                 )
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it},
+                    onValueChange = { viewModel.onPasswordChange(it) },
                     label = { Text("Contraseña")},
                     modifier = Modifier
                         .fillMaxWidth()
@@ -129,13 +130,7 @@ fun LoginScreenError(){
                 }
 
                 Button(
-                    onClick = {
-                        if (email.isEmpty() || password.isEmpty()) {
-                            showError = true
-                        } else {
-                            showError = false
-                        }
-                    },
+                    onClick = { viewModel.onLoginClicked() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -163,6 +158,6 @@ fun LoginScreenError(){
 @Composable
 fun LoginScreenErrorPreview(){
     TutoriasUVGTheme {
-        LoginScreenError()
+        LoginScreen()
     }
 }

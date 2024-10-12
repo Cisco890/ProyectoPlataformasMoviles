@@ -1,4 +1,4 @@
-package com.example.tutoriasuvg.signup
+package com.example.tutoriasuvg.presentation.signup
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,24 +23,25 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode.Companion.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(){
@@ -49,9 +50,18 @@ fun RegisterScreen(){
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var isTutor by remember { mutableStateOf(false) }
+    var showSnackbar by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     ){ paddingValues ->
         Box(
             modifier = Modifier
@@ -91,7 +101,7 @@ fun RegisterScreen(){
                     trailingIcon = {
                         IconButton(onClick = { name = "" }){
                             Icon(imageVector = Icons.Default.Close,
-                                 contentDescription = "Limpiar nombre"
+                                contentDescription = "Limpiar nombre"
                             )
                         }
                     }
@@ -166,12 +176,16 @@ fun RegisterScreen(){
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                Button(onClick = { /* Lógica para registrarse */ },
+                Button(onClick = {
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("Registrado correctamente")
+                    }
+                },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                    ) {
+                ) {
                     Text(
                         text = "Registrarse",
                         style = MaterialTheme.typography.labelLarge,
@@ -186,7 +200,7 @@ fun RegisterScreen(){
 
 @Preview(showBackground = true)
 @Composable
-fun RegisterScreenPreview() {
+fun RegisterScreenErrorPreview() {
     TutoriasUVGTheme {
         RegisterScreen()
     }

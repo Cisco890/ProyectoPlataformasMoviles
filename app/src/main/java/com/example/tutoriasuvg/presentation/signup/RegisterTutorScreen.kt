@@ -1,4 +1,4 @@
-package com.example.tutoriasuvg.signup
+package com.example.tutoriasuvg.presentation.signup
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,7 +44,7 @@ import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterStudentTutorScreenError(){
+fun RegisterStudentTutorScreen(){
     var year by remember { mutableStateOf("") }
     var hours by remember { mutableStateOf("") }
 
@@ -199,6 +199,6 @@ fun RegisterStudentTutorScreenError(){
 @Composable
 fun RegisterStudentTutorErrorScreenPreview() {
     TutoriasUVGTheme {
-        RegisterStudentTutorScreenError()
+        RegisterStudentTutorScreen()
     }
 }
