@@ -5,12 +5,12 @@ import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object ForgotPasswordNavigation
+data object ForgotPasswordDestination
 
-fun NavGraphBuilder.forgotPasswordNavGraph(
+fun NavGraphBuilder.forgotPasswordNavigation(
     onBackToLogin: () -> Unit
 ) {
-    composable<ForgotPasswordNavigation> {
+    composable<ForgotPasswordDestination> {
         ForgotPasswordScreen(
             onBackToLogin = onBackToLogin
         )

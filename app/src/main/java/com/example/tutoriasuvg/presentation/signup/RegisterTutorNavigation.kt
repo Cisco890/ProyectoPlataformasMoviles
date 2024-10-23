@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object RegisterTutorDestination
 
-fun NavGraphBuilder.registerTutorNavGraph(
+fun NavGraphBuilder.registerTutorNavigation(
     onBackToLogin: () -> Unit
 ){
     composable<RegisterDestination>{

@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object LoginDestination
 
-fun NavGraphBuilder.loginNavGraph(
+fun NavGraphBuilder.loginNavigation(
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit
 ){
