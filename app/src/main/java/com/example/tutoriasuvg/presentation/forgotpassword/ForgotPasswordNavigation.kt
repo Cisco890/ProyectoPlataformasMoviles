@@ -5,12 +5,14 @@ import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object ForgotPasswordDestination
+data object ForgotPasswordDestination {
+    const val route = "forgot_password_screen"
+}
 
 fun NavGraphBuilder.forgotPasswordNavigation(
     onBackToLogin: () -> Unit
 ) {
-    composable<ForgotPasswordDestination> {
+    composable(route = ForgotPasswordDestination.route) {
         ForgotPasswordScreen(
             onBackToLogin = onBackToLogin
         )

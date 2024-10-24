@@ -9,21 +9,18 @@ import com.example.tutoriasuvg.presentation.login.LoginDestination
 import com.example.tutoriasuvg.presentation.login.loginNavigation
 import com.example.tutoriasuvg.presentation.signup.RegisterDestination
 import com.example.tutoriasuvg.presentation.signup.registerNavigation
+import com.example.tutoriasuvg.presentation.signup.RegisterTutorDestination
 import com.example.tutoriasuvg.presentation.signup.registerTutorNavigation
 
 @Composable
-fun NavGraph(navController: NavHostController){
+fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = LoginDestination::class.simpleName!!
+        startDestination = LoginDestination.route 
     ) {
         loginNavigation(
-            onNavigateToRegister = {
-                navController.navigate(RegisterDestination::class.simpleName!!)
-            },
-            onNavigateToForgotPassword = {
-                navController.navigate(ForgotPasswordDestination::class.simpleName!!)
-            }
+            onNavigateToRegister = { navController.navigate(RegisterDestination.route) },
+            onNavigateToForgotPassword = { navController.navigate(ForgotPasswordDestination.route) }
         )
 
         registerNavigation(
@@ -37,6 +34,5 @@ fun NavGraph(navController: NavHostController){
         forgotPasswordNavigation(
             onBackToLogin = { navController.popBackStack() }
         )
-
     }
 }

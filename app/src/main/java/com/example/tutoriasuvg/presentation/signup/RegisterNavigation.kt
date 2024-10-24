@@ -5,12 +5,14 @@ import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object RegisterDestination
+data object RegisterDestination {
+    const val route = "register_screen"
+}
 
 fun NavGraphBuilder.registerNavigation(
     onBackToLogin: () -> Unit
-){
-    composable<RegisterDestination>{
+) {
+    composable(route = RegisterDestination.route) {
         RegisterScreen(
             onBackToLogin = onBackToLogin
         )
