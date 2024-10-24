@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
+import androidx.compose.material3.TopAppBarDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +36,7 @@ fun NotificacionesScreen(onBackClick: () -> Unit) {
                         )
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF007F39)
                 )
             )
@@ -47,7 +48,6 @@ fun NotificacionesScreen(onBackClick: () -> Unit) {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Tarjeta de notificación de tutoría finalizada (ejemplo con tutoría presencial)
             NotificacionCard(
                 titulo = "Ecuaciones diferenciales I",
                 fecha = "17/09/2024",
