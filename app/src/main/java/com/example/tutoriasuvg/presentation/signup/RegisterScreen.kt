@@ -29,38 +29,29 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.tutoriasuvg.R
-import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.*
-import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.launch
-import androidx.compose.material3.*
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.*
 
 @Composable
 fun RegisterScreen(
     onBackToLogin: () -> Unit,
     viewModel: RegisterViewModel = viewModel()
-){
+) {
     val name by viewModel.name.collectAsState()
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val confirmPassword by viewModel.confirmPassword.collectAsState()
     val isTutor by viewModel.isTutor.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -73,14 +64,14 @@ fun RegisterScreen(
                 modifier = Modifier.padding(16.dp)
             )
         }
-    ){ paddingValues ->
+    ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Column(
                 modifier = Modifier
                     .padding(16.dp)
@@ -110,8 +101,9 @@ fun RegisterScreen(
                         .padding(bottom = 16.dp),
                     singleLine = true,
                     trailingIcon = {
-                        IconButton(onClick = { viewModel.onNameChanged("") }){
-                            Icon(imageVector = Icons.Default.Close,
+                        IconButton(onClick = { viewModel.onNameChanged("") }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
                                 contentDescription = "Limpiar nombre"
                             )
                         }
@@ -176,7 +168,7 @@ fun RegisterScreen(
                         .fillMaxWidth()
                         .padding(bottom = 24.dp),
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
                     Checkbox(
                         checked = isTutor,
                         onCheckedChange = { viewModel.onTutorChecked(it) },
@@ -187,11 +179,23 @@ fun RegisterScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
+
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+
                 Button(
                     onClick = {
                         viewModel.onRegisterClicked()
                         coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Registrado correctamente")
+                            if (errorMessage.isEmpty()) {
+                                snackbarHostState.showSnackbar("Registrado correctamente")
+                            }
                         }
                     },
                     modifier = Modifier
@@ -205,8 +209,22 @@ fun RegisterScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
+
+                Button(
+                    onClick = onBackToLogin,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                ) {
+                    Text(
+                        text = "Volver al Login",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
+                }
             }
         }
-
     }
 }

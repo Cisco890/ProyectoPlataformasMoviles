@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tutoriasuvg.data.local.TutoriasDatabase
 import com.example.tutoriasuvg.data.local.entity.User
+import com.example.tutoriasuvg.data.repository.UserRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 class RegisterViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userDao = TutoriasDatabase.getDatabase(application).userDao()
+    private val userRepository = UserRepositoryImpl(userDao)
 
     private val _name = MutableStateFlow("")
     val name: StateFlow<String> = _name
@@ -50,16 +52,25 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         _isTutor.value = isChecked
     }
 
+    private val _errorMessage = MutableStateFlow("")
+    val errorMessage: StateFlow<String> = _errorMessage
+
     fun onRegisterClicked() {
-        viewModelScope.launch {
-            if (_password.value == _confirmPassword.value) {
+        if (_password.value == _confirmPassword.value && _email.value.isNotEmpty() && _name.value.isNotEmpty()) {
+            viewModelScope.launch {
                 val user = User(
                     name = _name.value,
                     email = _email.value,
                     password = _password.value,
                     isTutor = _isTutor.value
                 )
-                userDao.insertUser(user)
+                userRepository.insertUser(user)
+            }
+        } else {
+            if (_password.value != _confirmPassword.value) {
+                _errorMessage.value = "Las contraseñas no coinciden"
+            } else if (_email.value.isEmpty() || _name.value.isEmpty() || _password.value.isEmpty()) {
+                _errorMessage.value = "Todos los campos son obligatorios"
             }
         }
     }
