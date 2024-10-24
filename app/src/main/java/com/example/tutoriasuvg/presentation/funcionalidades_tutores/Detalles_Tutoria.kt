@@ -46,7 +46,7 @@ fun DetalleTutoria(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF007F39)
                 )
             )
@@ -139,7 +139,7 @@ fun DetalleTutoriaPreview(){
             title = "Física 3",
             date = "19/09/2024",
             location = "Virtual: Enlace Zoom",
-            time = "15;00 hrs - 16:00 hrs",
+            time = "15:00 hrs - 16:00 hrs",
             studentName = "Nombre del estudiante",
             isVirtual = true,
             link = "Enlace Zoom"

@@ -66,7 +66,7 @@ fun AppBar() {
                 tint = Color.White
             )
         },
-        colors = TopAppBarDefaults.smallTopAppBarColors(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color(0xFF007F39)
         )
     )

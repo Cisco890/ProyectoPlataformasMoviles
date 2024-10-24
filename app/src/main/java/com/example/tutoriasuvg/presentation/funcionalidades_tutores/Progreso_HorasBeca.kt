@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
@@ -32,7 +31,7 @@ fun ProgresoHorasBeca(
     porcentajeProgreso: Float,
     totalHoras: Int,
     horasCompletadas: Int
-){
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -46,7 +45,7 @@ fun ProgresoHorasBeca(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF007F39)
                 )
             )
