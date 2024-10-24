@@ -1,11 +1,20 @@
 package com.example.tutoriasuvg.presentation.signup
 
+import android.app.Application
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.tutoriasuvg.data.local.TutoriasDatabase
+import com.example.tutoriasuvg.data.local.entity.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class RegisterViewModel : ViewModel() {
+class RegisterViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val userDao = TutoriasDatabase.getDatabase(application).userDao()
+
     private val _name = MutableStateFlow("")
     val name: StateFlow<String> = _name
 
@@ -39,5 +48,19 @@ class RegisterViewModel : ViewModel() {
 
     fun onTutorChecked(isChecked: Boolean){
         _isTutor.value = isChecked
+    }
+
+    fun onRegisterClicked() {
+        viewModelScope.launch {
+            if (_password.value == _confirmPassword.value) {
+                val user = User(
+                    name = _name.value,
+                    email = _email.value,
+                    password = _password.value,
+                    isTutor = _isTutor.value
+                )
+                userDao.insertUser(user)
+            }
+        }
     }
 }

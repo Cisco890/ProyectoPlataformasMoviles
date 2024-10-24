@@ -1,4 +1,4 @@
-package com.example.tutoriasuvg.funcionalidades_admin
+package com.example.tutoriasuvg.presentation.funcionalidades_admin
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -12,7 +12,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.example.tutoriasuvg.R
-import com.example.tutoriasuvg.funcionalidades_tutores.AppBar
+import com.example.tutoriasuvg.presentation.funcionalidades_tutores.AppBar
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -187,11 +187,13 @@ fun RegisterScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                Button(onClick = {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar("Registrado correctamente")
-                    }
-                },
+                Button(
+                    onClick = {
+                        viewModel.onRegisterClicked()
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("Registrado correctamente")
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -208,11 +210,3 @@ fun RegisterScreen(
 
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun RegisterScreenErrorPreview() {
-//    TutoriasUVGTheme {
-//        RegisterScreen()
-//    }
-//}

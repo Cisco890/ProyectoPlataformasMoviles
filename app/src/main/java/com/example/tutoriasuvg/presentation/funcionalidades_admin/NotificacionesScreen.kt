@@ -1,4 +1,4 @@
-package com.example.tutoriasuvg.funcionalidades_admin
+package com.example.tutoriasuvg.presentation.funcionalidades_admin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -6,27 +6,26 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VerProgresosScreen(onBackClick: () -> Unit) {
+fun NotificacionesScreen(onBackClick: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Ver progresos", color = Color.White) },
+                title = { Text(text = "Notificaciones", color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
                         Icon(
@@ -40,8 +39,7 @@ fun VerProgresosScreen(onBackClick: () -> Unit) {
                     containerColor = Color(0xFF007F39)
                 )
             )
-        },
-        bottomBar = { AdminBottomNavigationBar() }
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -49,16 +47,26 @@ fun VerProgresosScreen(onBackClick: () -> Unit) {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Progresos de los tutores
-            ProgresoCard(nombreTutor = "Tutor 1", horasRealizadas = "12 horas")
-            Spacer(modifier = Modifier.height(16.dp))
-            ProgresoCard(nombreTutor = "Tutor 2", horasRealizadas = "4 horas")
+            // Tarjeta de notificación de tutoría finalizada (ejemplo con tutoría presencial)
+            NotificacionCard(
+                titulo = "Ecuaciones diferenciales I",
+                fecha = "17/09/2024",
+                modalidad = "Presencial: CIT-503",
+                hora = "15:00 hrs - 16:00 hrs",
+                estado = "¡Finalizada!"
+            )
         }
     }
 }
 
 @Composable
-fun ProgresoCard(nombreTutor: String, horasRealizadas: String) {
+fun NotificacionCard(
+    titulo: String,
+    fecha: String,
+    modalidad: String,
+    hora: String,
+    estado: String
+) {
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
@@ -80,8 +88,8 @@ fun ProgresoCard(nombreTutor: String, horasRealizadas: String) {
                     .background(Color(0xFF007F39))
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.schedule),
-                    contentDescription = "Icono de progreso",
+                    imageVector = Icons.Filled.Notifications,
+                    contentDescription = "Icono de notificación",
                     tint = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
@@ -89,13 +97,19 @@ fun ProgresoCard(nombreTutor: String, horasRealizadas: String) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Información del progreso
+            // Información de la tutoría
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(text = nombreTutor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(text = titulo, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Horas beca realizadas: $horasRealizadas", fontSize = 14.sp)
+                Text(text = fecha, fontSize = 14.sp, color = Color.Black)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = modalidad, fontSize = 14.sp, color = Color.Black)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = hora, fontSize = 14.sp, color = Color.Black)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = estado, fontSize = 14.sp, color = Color.Black)
             }
         }
     }
@@ -103,8 +117,8 @@ fun ProgresoCard(nombreTutor: String, horasRealizadas: String) {
 
 @Preview(showBackground = true)
 @Composable
-fun VerProgresosScreenPreview() {
+fun NotificacionesScreenPreview() {
     TutoriasUVGTheme {
-        VerProgresosScreen(onBackClick = {})
+        NotificacionesScreen(onBackClick = {})
     }
 }

@@ -1,6 +1,7 @@
-package com.example.tutoriasuvg.funcionalidades_admin
+package com.example.tutoriasuvg.presentation.funcionalidades_tutores
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -17,15 +18,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tutoriasuvg.R
-import com.example.tutoriasuvg.funcionalidades_tutores.AppBar
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePageAdminConSolicitudesScreen() {
+fun HomePageTutoresWithTutorias() {
     Scaffold(
         topBar = { AppBar() },
-        bottomBar = { AdminBottomNavigationBar() }
+        bottomBar = { BottomNavigationBar() }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -33,37 +32,33 @@ fun HomePageAdminConSolicitudesScreen() {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Tarjetas de solicitudes
-            CardSolicitud(
-                nombreEstudiante = "FERNANDO JOSÉ RUEDA RODAS",
-                tutoria = "Ecuaciones Diferenciales I",
-                jornada = "Vespertina",
-                diasPreferencia = "Jueves"
+            // Mostrar tarjetas de tutorías
+            CardTutoria(
+                title = "Ecuaciones diferenciales I",
+                date = "17/09/2024",
+                location = "Presencial: CIT-503",
+                time = "15:00 hrs - 16:00 hrs",
+                link = null
             )
             Spacer(modifier = Modifier.height(16.dp))
-            CardSolicitud(
-                nombreEstudiante = "FERNANDO ANDREE HERNÁNDEZ",
-                tutoria = "Matemática Discreta I",
-                jornada = "Matutina",
-                diasPreferencia = "Martes, Viernes"
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            CardSolicitud(
-                nombreEstudiante = "JUAN FRANCISCO MARTÍNEZ LEAL",
-                tutoria = "Física 3",
-                jornada = "Vespertina",
-                diasPreferencia = "Jueves, Viernes"
+            CardTutoria(
+                title = "Física 3",
+                date = "19/09/2024",
+                location = "Virtual: ",
+                time = "15:00 hrs - 16:00 hrs",
+                link = "Enlace Zoom"
             )
         }
     }
 }
 
 @Composable
-fun CardSolicitud(
-    nombreEstudiante: String,
-    tutoria: String,
-    jornada: String,
-    diasPreferencia: String
+fun CardTutoria(
+    title: String,
+    date: String,
+    location: String,
+    time: String,
+    link: String?
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -79,6 +74,7 @@ fun CardSolicitud(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Ícono de calendario dentro de un círculo verde
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
@@ -86,27 +82,38 @@ fun CardSolicitud(
                     .clip(CircleShape)
                     .background(Color(0xFF007F39))
             ) {
-                Icon(
+                Image(
                     painter = painterResource(id = R.drawable.today),
-                    contentDescription = "Icono de solicitud",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
+                    contentDescription = "Icono de tutoría",
+                    modifier = Modifier.size(24.dp),
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Información de la solicitud
+            // Información de la tutoría
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
             ) {
-                Text(text = nombreEstudiante, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Tutoría solicitada: $tutoria", fontSize = 14.sp, color = Color.Black)
+                Text(text = date, fontSize = 14.sp, color = Color.Black)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Jornada solicitada: $jornada", fontSize = 14.sp, color = Color.Black)
+
+                // Mostrar la ubicación con el link (si está disponible)
+                if (link != null) {
+                    Text(
+                        text = "$location$link",
+                        fontSize = 14.sp,
+                        color = Color(0xFF007F39),
+                        fontWeight = FontWeight.Bold
+                    )
+                } else {
+                    Text(text = location, fontSize = 14.sp, color = Color.Black)
+                }
+
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Días de preferencia: $diasPreferencia", fontSize = 14.sp, color = Color.Black)
+                Text(text = time, fontSize = 14.sp, color = Color.Black)
             }
         }
     }
@@ -114,8 +121,8 @@ fun CardSolicitud(
 
 @Preview(showBackground = true)
 @Composable
-fun HomePageAdminConSolicitudesPreview() {
+fun HomePageTutoresWithTutoriasPreview() {
     TutoriasUVGTheme {
-        HomePageAdminConSolicitudesScreen()
+        HomePageTutoresWithTutorias()
     }
 }

@@ -1,4 +1,4 @@
-package com.example.tutoriasuvg.funcionalidades_tutores
+package com.example.tutoriasuvg.presentation.funcionalidades_tutores
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
