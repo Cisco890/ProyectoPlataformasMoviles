@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -156,6 +158,16 @@ fun AppBar() {
                         .size(150.dp)
                 )
             }
+        },
+        actions = {
+            Icon(
+                imageVector = Icons.Filled.AccountCircle,
+                contentDescription = "User Icon",
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(24.dp),
+                tint = Color.White
+            )
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color(0xFF007F39)
