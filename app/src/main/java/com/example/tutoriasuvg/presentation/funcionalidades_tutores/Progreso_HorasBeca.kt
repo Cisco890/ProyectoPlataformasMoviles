@@ -1,5 +1,6 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_tutores
 
+import ProgresoHorasBecaViewModel
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,6 +10,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,6 +19,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
@@ -24,20 +27,19 @@ import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgresoHorasBeca(
-    onBackClick: () -> Unit,
-    nombreEstudiante: String,
-    carnetEstudiante: String,
-    anioEstudiante: String,
-    porcentajeProgreso: Float,
-    totalHoras: Int,
-    horasCompletadas: Int
+    viewModel: ProgresoHorasBecaViewModel = viewModel()
 ) {
+    val nombreEstudiante = viewModel.nombreEstudiante.collectAsState().value
+    val horasCompletadas = viewModel.horasCompletadas.collectAsState().value
+    val totalHoras = viewModel.totalHoras.collectAsState().value
+    val porcentajeProgreso = viewModel.porcentajeProgreso.collectAsState().value
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Perfil", color = Color.White) },
                 navigationIcon = {
-                    IconButton(onClick = { onBackClick() }) {
+                    IconButton(onClick = { /* Acción para volver */ }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Regresar",
@@ -79,8 +81,8 @@ fun ProgresoHorasBeca(
 
             // Información del estudiante
             Text(text = nombreEstudiante, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Text(text = carnetEstudiante, fontSize = 16.sp, color = Color.Black)
-            Text(text = anioEstudiante, fontSize = 16.sp, color = Color.Black)
+            Text(text = "Carnet del estudiante", fontSize = 16.sp, color = Color.Black)
+            Text(text = "3er Año", fontSize = 16.sp, color = Color.Black)
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -143,14 +145,6 @@ fun CircularProgressBar(
 @Composable
 fun ProgresoHorasBecaPreview() {
     TutoriasUVGTheme {
-        ProgresoHorasBeca(
-            onBackClick = {},
-            nombreEstudiante = "Nombre del estudiante",
-            carnetEstudiante = "Carnet del estudiante",
-            anioEstudiante = "Año que cursa el Estudiante",
-            porcentajeProgreso = 0.75f,
-            totalHoras = 35,
-            horasCompletadas = 25
-        )
+        ProgresoHorasBeca()
     }
 }

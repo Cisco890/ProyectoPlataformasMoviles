@@ -1,5 +1,6 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_tutores
 
+import HomePageTutoresViewModel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
@@ -32,8 +35,9 @@ data class Tutoria(
 
 @Composable
 fun HomePageTutores(
-    tutorias: List<Tutoria>  // Lista de tutorías
+    viewModel: HomePageTutoresViewModel = viewModel()
 ) {
+    val tutorias = viewModel.tutorias.collectAsState().value
     Scaffold(
         topBar = { AppBar() },
     ) { paddingValues ->
@@ -177,33 +181,37 @@ fun AppBar() {
 
 @Preview(showBackground = true)
 @Composable
-fun HomePageTutoresPreview() {
-    TutoriasUVGTheme {
-        HomePageTutores(
-            tutorias = listOf(
-                Tutoria(
-                    title = "Ecuaciones diferenciales I",
-                    date = "17/09/2024",
-                    location = "Presencial: CIT-503",
-                    time = "15:00 hrs - 16:00 hrs",
-                    link = null
-                ),
-                Tutoria(
-                    title = "Física 3",
-                    date = "19/09/2024",
-                    location = "Virtual: ",
-                    time = "15:00 hrs - 16:00 hrs",
-                    link = "Enlace Zoom"
-                )
+fun HomePageConTutoresPreview() {
+    val mockViewModel = HomePageTutoresViewModel(
+        tutoriasIniciales = listOf(
+            Tutoria(
+                title = "Ecuaciones diferenciales I",
+                date = "17/09/2024",
+                location = "Presencial: CIT-503",
+                time = "15:00 hrs - 16:00 hrs",
+                link = null
+            ),
+            Tutoria(
+                title = "Física 3",
+                date = "19/09/2024",
+                location = "Virtual: ",
+                time = "15:00 hrs - 16:00 hrs",
+                link = "Enlace Zoom"
             )
         )
+    )
+
+    TutoriasUVGTheme {
+        HomePageTutores(viewModel = mockViewModel)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun HomePageTutoresSinTutoriasPreview() {
+    val mockViewModel = HomePageTutoresViewModel(tutoriasIniciales = emptyList())
+
     TutoriasUVGTheme {
-        HomePageTutores(tutorias = emptyList())
+        HomePageTutores(viewModel = mockViewModel)
     }
 }
