@@ -17,12 +17,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.collectAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificacionesScreen(onBackClick: () -> Unit) {
+fun NotificacionesScreen(viewModel: NotificacionesViewModel = viewModel(), onBackClick: () -> Unit) {
+    val notificaciones = viewModel.notificaciones.collectAsState().value
     Scaffold(
         topBar = {
             TopAppBar(
@@ -48,13 +51,15 @@ fun NotificacionesScreen(onBackClick: () -> Unit) {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            NotificacionCard(
-                titulo = "Ecuaciones diferenciales I",
-                fecha = "17/09/2024",
-                modalidad = "Presencial: CIT-503",
-                hora = "15:00 hrs - 16:00 hrs",
-                estado = "¡Finalizada!"
-            )
+            notificaciones.forEach { notificacion ->
+                NotificacionCard(
+                    titulo = notificacion.titulo,
+                    fecha = notificacion.fecha,
+                    modalidad = notificacion.modalidad,
+                    hora = notificacion.hora,
+                    estado = notificacion.estado
+                )
+            }
         }
     }
 }

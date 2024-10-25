@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,9 +21,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
-import com.example.tutoriasuvg.presentation.funcionalidades_tutores.AppBar
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
+import kotlinx.coroutines.flow.MutableStateFlow
 
 data class Solicitud(
     val nombreEstudiante: String,
@@ -33,7 +35,8 @@ data class Solicitud(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePageAdmin(solicitudes: List<Solicitud>) {
+fun HomePageAdmin(viewModel: HomePageAdminViewModel = viewModel()) {
+    val solicitudes = viewModel.solicitudes.collectAsState().value
     Scaffold(
         topBar = { AdminAppBar() },
         bottomBar = { AdminBottomNavigationBar() }
@@ -224,9 +227,9 @@ fun AdminAppBar() {
 @Preview(showBackground = true)
 @Composable
 fun HomePageAdminWithSolicitudesPreview() {
-    TutoriasUVGTheme {
-        HomePageAdmin(
-            solicitudes = listOf(
+    val mockViewModel = object : HomePageAdminViewModel() {
+        override val solicitudes = MutableStateFlow(
+            listOf(
                 Solicitud(
                     nombreEstudiante = "FERNANDO JOSÉ RUEDA RODAS",
                     tutoria = "Ecuaciones Diferenciales I",
@@ -242,13 +245,21 @@ fun HomePageAdminWithSolicitudesPreview() {
             )
         )
     }
+
+    TutoriasUVGTheme {
+        HomePageAdmin(viewModel = mockViewModel)
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun HomePageAdminSinSolicitudesPreview() {
+    val mockViewModel = object : HomePageAdminViewModel() {
+        override val solicitudes = MutableStateFlow(emptyList<Solicitud>())
+    }
+
     TutoriasUVGTheme {
-        HomePageAdmin(solicitudes = emptyList())
+        HomePageAdmin(viewModel = mockViewModel)
     }
 }
 
