@@ -6,6 +6,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.tutoriasuvg.presentation.funcionalidades_admin.HomePageAdminDestination
+import com.example.tutoriasuvg.presentation.funcionalidades_admin.HomePageAdminNavigation
+import com.example.tutoriasuvg.presentation.funcionalidades_admin.NotificacionesDestination
+import com.example.tutoriasuvg.presentation.funcionalidades_admin.NotificacionesNavigation
+import com.example.tutoriasuvg.presentation.funcionalidades_admin.VerProgresosDestination
+import com.example.tutoriasuvg.presentation.funcionalidades_admin.VerProgresosNavigation
 import com.example.tutoriasuvg.presentation.funcionalidades_tutores.DetallesTutoriaNavigation
 import com.example.tutoriasuvg.presentation.funcionalidades_tutores.HomePageTutoresNavigation
 import com.example.tutoriasuvg.presentation.funcionalidades_tutores.ProgresoHorasBecaNavigation
@@ -18,7 +24,7 @@ import kotlinx.serialization.json.Json
 fun UserNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "homePageTutores"
+        startDestination = HomePageAdminDestination().route
     ) {
         composable("homePageTutores") {
             HomePageTutoresNavigation(navController)
@@ -40,6 +46,20 @@ fun UserNavGraph(navController: NavHostController) {
         composable("progresoHorasBeca") {
             ProgresoHorasBecaNavigation(navController)
         }
+
+
+        composable(HomePageAdminDestination().route) {
+            HomePageAdminNavigation(navController)
+        }
+
+        composable(VerProgresosDestination().route) {
+            VerProgresosNavigation(navController)
+        }
+
+        composable(NotificacionesDestination().route) {
+            NotificacionesNavigation(navController)
+        }
+
     }
 }
 

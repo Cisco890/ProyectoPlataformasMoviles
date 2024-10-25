@@ -21,6 +21,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class NotificacionesDestination(val route: String = "notificaciones")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

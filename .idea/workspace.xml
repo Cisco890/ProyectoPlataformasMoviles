@@ -10,10 +10,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="41e359d4-18c0-4e24-9de4-85ad5f210e5b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/HomePageAdminViewModel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/NotificacionesViewModel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/VerProgresosViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/HomePageAdminNavigation.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/NotificacionesNavigation.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/VerProgresosNavigation.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/navigation/UserNavGraph.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/navigation/UserNavGraph.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/HomePageAdmin.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/HomePageAdmin.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/NotificacionesScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/NotificacionesScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/VerProgresosScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/tutoriasuvg/presentation/funcionalidades_admin/VerProgresosScreen.kt" afterDir="false" />
@@ -26,7 +27,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=C:\Users\Fercho\.android\avd\Pixel_2_API_35.avd)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=C:\Users\Fercho\.android\avd\Pixel_6_API_35.avd)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -73,8 +74,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Kotlin File" />
         <option value="Kotlin Class" />
+        <option value="Kotlin File" />
       </list>
     </option>
   </component>

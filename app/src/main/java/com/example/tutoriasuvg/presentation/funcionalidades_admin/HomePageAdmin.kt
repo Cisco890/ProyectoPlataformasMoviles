@@ -25,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.serialization.Serializable
 
 data class Solicitud(
     val nombreEstudiante: String,
@@ -33,13 +34,23 @@ data class Solicitud(
     val diasPreferencia: String
 )
 
+@Serializable
+data class HomePageAdminDestination(val route: String = "homePageAdmin")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePageAdmin(viewModel: HomePageAdminViewModel = viewModel()) {
+fun HomePageAdmin(
+    viewModel: HomePageAdminViewModel = viewModel(),
+    onVerProgresosClick: () -> Unit,
+    onNotificacionesClick: () -> Unit
+) {
     val solicitudes = viewModel.solicitudes.collectAsState().value
     Scaffold(
         topBar = { AdminAppBar() },
-        bottomBar = { AdminBottomNavigationBar() }
+        bottomBar = { AdminBottomNavigationBar(
+            onVerProgresosClick = onVerProgresosClick,
+            onNotificacionesClick = onNotificacionesClick
+        ) }
     ) { paddingValues ->
         if (solicitudes.isEmpty()) {
             // Mostrar mensaje cuando no hay solicitudes
@@ -132,7 +143,10 @@ fun CardSolicitud(
 }
 
 @Composable
-fun AdminBottomNavigationBar() {
+fun AdminBottomNavigationBar(
+    onVerProgresosClick: () -> Unit,
+    onNotificacionesClick: () -> Unit
+) {
     NavigationBar(
         containerColor = Color(0xFF007F39)
     ) {
@@ -162,7 +176,7 @@ fun AdminBottomNavigationBar() {
             },
             label = { Text("Ver progresos") },
             selected = false,
-            onClick = { /* Acción para ver progresos */ },
+            onClick = onVerProgresosClick,
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color.White,
                 unselectedIconColor = Color.White,
@@ -179,7 +193,7 @@ fun AdminBottomNavigationBar() {
             },
             label = { Text("Notificaciones") },
             selected = false,
-            onClick = { /* Acción para notificaciones */ },
+            onClick = onNotificacionesClick,
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color.White,
                 unselectedIconColor = Color.White,
@@ -247,7 +261,11 @@ fun HomePageAdminWithSolicitudesPreview() {
     }
 
     TutoriasUVGTheme {
-        HomePageAdmin(viewModel = mockViewModel)
+        HomePageAdmin(
+            viewModel = mockViewModel,
+            onVerProgresosClick = {/**/},
+            onNotificacionesClick = {/**/}
+        )
     }
 }
 
@@ -259,7 +277,11 @@ fun HomePageAdminSinSolicitudesPreview() {
     }
 
     TutoriasUVGTheme {
-        HomePageAdmin(viewModel = mockViewModel)
+        HomePageAdmin(
+            viewModel = mockViewModel,
+            onVerProgresosClick = {/**/},
+            onNotificacionesClick = {/**/}
+        )
     }
 }
 
