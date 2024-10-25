@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
 import com.example.tutoriasuvg.navigation.NavGraph
+import com.example.tutoriasuvg.navigation.UserNavGraph
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +14,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TutoriasUVGTheme {
                 val navController = rememberNavController()
-                NavGraph(navController = navController)
+                UserNavGraph(navController = navController)
             }
         }
     }

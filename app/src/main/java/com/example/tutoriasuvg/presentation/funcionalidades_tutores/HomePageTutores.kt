@@ -4,6 +4,7 @@ import HomePageTutoresViewModel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,7 +25,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Tutoria(
     val title: String,
     val date: String,
@@ -35,11 +38,13 @@ data class Tutoria(
 
 @Composable
 fun HomePageTutores(
-    viewModel: HomePageTutoresViewModel = viewModel()
+    viewModel: HomePageTutoresViewModel,
+    onTutoriaClick: (Tutoria) -> Unit,
+    onProgresoClick: () -> Unit
 ) {
     val tutorias = viewModel.tutorias.collectAsState().value
     Scaffold(
-        topBar = { AppBar() },
+        topBar = { AppBar(onProgresoClick = onProgresoClick) },
     ) { paddingValues ->
         if (tutorias.isEmpty()) {
             // Mostrar mensaje cuando no hay tutorías
@@ -69,7 +74,8 @@ fun HomePageTutores(
                         date = tutoria.date,
                         location = tutoria.location,
                         time = tutoria.time,
-                        link = tutoria.link
+                        link = tutoria.link,
+                        onClick = { onTutoriaClick(tutoria) }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -84,14 +90,16 @@ fun CardTutoria(
     date: String,
     location: String,
     time: String,
-    link: String?
+    link: String?,
+    onClick: () -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, Color.LightGray),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -147,7 +155,7 @@ fun CardTutoria(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar() {
+fun AppBar(onProgresoClick: () -> Unit) {
     TopAppBar(
         title = {
             Row(
@@ -164,14 +172,16 @@ fun AppBar() {
             }
         },
         actions = {
-            Icon(
-                imageVector = Icons.Filled.AccountCircle,
-                contentDescription = "User Icon",
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(24.dp),
-                tint = Color.White
-            )
+            IconButton(onClick = { onProgresoClick() }) {
+                Icon(
+                    imageVector = Icons.Filled.AccountCircle,
+                    contentDescription = "User Icon",
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .size(24.dp),
+                    tint = Color.White
+                )
+            }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color(0xFF007F39)
@@ -202,7 +212,11 @@ fun HomePageConTutoresPreview() {
     )
 
     TutoriasUVGTheme {
-        HomePageTutores(viewModel = mockViewModel)
+        HomePageTutores(
+            viewModel = mockViewModel,
+            onTutoriaClick = { /* */ },
+            onProgresoClick = { /* */ }
+        )
     }
 }
 
@@ -212,6 +226,10 @@ fun HomePageTutoresSinTutoriasPreview() {
     val mockViewModel = HomePageTutoresViewModel(tutoriasIniciales = emptyList())
 
     TutoriasUVGTheme {
-        HomePageTutores(viewModel = mockViewModel)
+        HomePageTutores(
+            viewModel = mockViewModel,
+            onTutoriaClick = { /* */ },
+            onProgresoClick = { /**/ }
+        )
     }
 }

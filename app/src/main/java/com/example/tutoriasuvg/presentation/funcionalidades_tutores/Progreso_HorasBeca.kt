@@ -27,7 +27,8 @@ import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgresoHorasBeca(
-    viewModel: ProgresoHorasBecaViewModel = viewModel()
+    viewModel: ProgresoHorasBecaViewModel = viewModel(),
+    onBackClick: () -> Unit
 ) {
     val nombreEstudiante = viewModel.nombreEstudiante.collectAsState().value
     val horasCompletadas = viewModel.horasCompletadas.collectAsState().value
@@ -39,7 +40,7 @@ fun ProgresoHorasBeca(
             TopAppBar(
                 title = { Text(text = "Perfil", color = Color.White) },
                 navigationIcon = {
-                    IconButton(onClick = { /* Acción para volver */ }) {
+                    IconButton(onClick = { onBackClick() }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Regresar",
@@ -145,6 +146,8 @@ fun CircularProgressBar(
 @Composable
 fun ProgresoHorasBecaPreview() {
     TutoriasUVGTheme {
-        ProgresoHorasBeca()
+        ProgresoHorasBeca(
+            onBackClick = {/**/}
+        )
     }
 }

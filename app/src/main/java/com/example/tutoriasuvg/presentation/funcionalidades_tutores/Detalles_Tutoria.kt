@@ -43,7 +43,7 @@ fun DetalleTutoria(
             TopAppBar(
                 title = { Text(text = "Detalles", color = Color.White) },
                 navigationIcon = {
-                    IconButton(onClick = { /* Acción para volver */ }) {
+                    IconButton(onClick = { onBackClick() }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Regresar",
@@ -66,18 +66,56 @@ fun DetalleTutoria(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(150.dp))
+            // Row para ícono y la información
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Ícono de tutoría dentro de un círculo verde
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF007F39))
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.today),
+                        contentDescription = "Icono de tutoría",
+                        modifier = Modifier.size(40.dp),
+                    )
+                }
 
-            // Información de la tutoría
-            DetalleTutoria(
-                title = title,
-                date = date,
-                location = location,
-                time = time,
-                studentName = studentName,
-                isVirtual = isVirtual,
-                link = link
-            )
+                Spacer(modifier = Modifier.width(16.dp))
 
+                // Información de la tutoría
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = date, fontSize = 16.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Mostrar ubicación (si es virtual, también muestra el link)
+                    if (isVirtual && link != null) {
+                        Text(
+                            text = "Virtual: $link",
+                            fontSize = 16.sp,
+                            color = Color(0xFF007F39),
+                            fontWeight = FontWeight.Bold
+                        )
+                    } else {
+                        Text(text = location, fontSize = 16.sp, color = Color.Gray)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = time, fontSize = 16.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = studentName, fontSize = 16.sp, color = Color.Gray)
+                }
+            }
             Spacer(modifier = Modifier.height(64.dp))
 
             // Botón de "Tutoría Completada"
@@ -97,19 +135,6 @@ fun DetalleTutoria(
             }
         }
     }
-}
-@Composable
-fun DetalleTutoria(
-    title: String,
-    date: String,
-    location: String,
-    time: String,
-    studentName: String,
-    isVirtual: Boolean,
-    link: String?
-) {
-    // Información detallada de la tutoría (ya existente)
-    // Solo encapsulamos la estructura existente aquí
 }
 
 @Preview(showBackground = true)
