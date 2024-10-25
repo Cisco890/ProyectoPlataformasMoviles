@@ -20,34 +20,54 @@ import androidx.compose.ui.unit.sp
 import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
+data class Tutoria(
+    val title: String,
+    val date: String,
+    val location: String,
+    val time: String,
+    val link: String?
+)
+
 @Composable
-fun HomePageTutoresWithTutorias() {
+fun HomePageTutores(
+    tutorias: List<Tutoria>  // Lista de tutorías
+) {
     Scaffold(
         topBar = { AppBar() },
-        bottomBar = { BottomNavigationBar() }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-        ) {
-            // Mostrar tarjetas de tutorías
-            CardTutoria(
-                title = "Ecuaciones diferenciales I",
-                date = "17/09/2024",
-                location = "Presencial: CIT-503",
-                time = "15:00 hrs - 16:00 hrs",
-                link = null
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            CardTutoria(
-                title = "Física 3",
-                date = "19/09/2024",
-                location = "Virtual: ",
-                time = "15:00 hrs - 16:00 hrs",
-                link = "Enlace Zoom"
-            )
+        if (tutorias.isEmpty()) {
+            // Mostrar mensaje cuando no hay tutorías
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No tienes tutorías asignadas",
+                    fontSize = 18.sp,
+                    color = Color.Black
+                )
+            }
+        } else {
+            // Mostrar la lista de tutorías asignadas
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp)
+            ) {
+                tutorias.forEach { tutoria ->
+                    CardTutoria(
+                        title = tutoria.title,
+                        date = tutoria.date,
+                        location = tutoria.location,
+                        time = tutoria.time,
+                        link = tutoria.link
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
         }
     }
 }
@@ -119,10 +139,59 @@ fun CardTutoria(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppBar() {
+    TopAppBar(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_uvg_letras),
+                    contentDescription = "Logo UVG",
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(150.dp)
+                )
+            }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color(0xFF007F39)
+        )
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
-fun HomePageTutoresWithTutoriasPreview() {
+fun HomePageTutoresPreview() {
     TutoriasUVGTheme {
-        HomePageTutoresWithTutorias()
+        HomePageTutores(
+            tutorias = listOf(
+                Tutoria(
+                    title = "Ecuaciones diferenciales I",
+                    date = "17/09/2024",
+                    location = "Presencial: CIT-503",
+                    time = "15:00 hrs - 16:00 hrs",
+                    link = null
+                ),
+                Tutoria(
+                    title = "Física 3",
+                    date = "19/09/2024",
+                    location = "Virtual: ",
+                    time = "15:00 hrs - 16:00 hrs",
+                    link = "Enlace Zoom"
+                )
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomePageTutoresSinTutoriasPreview() {
+    TutoriasUVGTheme {
+        HomePageTutores(tutorias = emptyList())
     }
 }
