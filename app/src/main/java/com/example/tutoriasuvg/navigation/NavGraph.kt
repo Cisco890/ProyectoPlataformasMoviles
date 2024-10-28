@@ -14,7 +14,6 @@ import com.example.tutoriasuvg.presentation.signup.registerNavigation
 import com.example.tutoriasuvg.presentation.signup.RegisterTutorDestination
 import com.example.tutoriasuvg.presentation.signup.registerTutorNavigation
 
-
 @Composable
 fun NavGraph(
     navController: NavHostController,
@@ -25,11 +24,27 @@ fun NavGraph(
         startDestination = startDestination
     ) {
         loginNavigation(
-            onNavigateToRegister = { navController.navigate(RegisterDestination.route) },
-            onNavigateToForgotPassword = { navController.navigate(ForgotPasswordDestination.route) },
-            onLoginAsUser = { navController.navigate("userNavGraph/user_home") },
-            onLoginAsTutor = { navController.navigate("userNavGraph/tutor_home") },
-            onLoginAsAdmin = { navController.navigate("userNavGraph/admin_home") }
+            onNavigateToRegister = {
+                navController.navigate(RegisterDestination.route)
+            },
+            onNavigateToForgotPassword = {
+                navController.navigate(ForgotPasswordDestination.route)
+            },
+            onLoginAsUser = {
+                navController.navigate("userNavGraph/user_home") {
+                    popUpTo(LoginDestination.route) { inclusive = true }
+                }
+            },
+            onLoginAsTutor = {
+                navController.navigate("userNavGraph/tutor_home") {
+                    popUpTo(LoginDestination.route) { inclusive = true }
+                }
+            },
+            onLoginAsAdmin = {
+                navController.navigate("userNavGraph/admin_home") {
+                    popUpTo(LoginDestination.route) { inclusive = true }
+                }
+            }
         )
 
         registerNavigation(
@@ -56,7 +71,3 @@ fun NavGraph(
         }
     }
 }
-
-
-
-

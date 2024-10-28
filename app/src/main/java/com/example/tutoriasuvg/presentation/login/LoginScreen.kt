@@ -52,6 +52,7 @@ fun LoginScreen(
 ) {
     val email = viewModel.email.value
     val showError = viewModel.showError.value
+    var emailError by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -88,37 +89,37 @@ fun LoginScreen(
 
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { viewModel.onEmailChanged(it) },
+                    onValueChange = {
+                        viewModel.onEmailChanged(it)
+                        emailError = it.isBlank()
+                    },
                     label = { Text("Correo Institucional") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
-                    singleLine = true
+                    singleLine = true,
+                    isError = emailError
                 )
 
-                if (showError) {
-                    Row(
+                if (emailError) {
+                    Text(
+                        text = "Por favor ingrese un correo electrónico",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = "Error",
-                            tint = androidx.compose.ui.graphics.Color.Red,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = "Usuario no encontrado",
-                            color = androidx.compose.ui.graphics.Color.Red,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
+                            .padding(bottom = 8.dp)
+                    )
                 }
 
                 Button(
-                    onClick = { onLoginAsUser() },
+                    onClick = {
+                        if (email.isNotBlank()) {
+                            onLoginAsUser()
+                        } else {
+                            emailError = true
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
@@ -129,7 +130,13 @@ fun LoginScreen(
                 }
 
                 Button(
-                    onClick = { onLoginAsTutor() },
+                    onClick = {
+                        if (email.isNotBlank()) {
+                            onLoginAsTutor()
+                        } else {
+                            emailError = true
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
@@ -140,7 +147,13 @@ fun LoginScreen(
                 }
 
                 Button(
-                    onClick = { onLoginAsAdmin() },
+                    onClick = {
+                        if (email.isNotBlank()) {
+                            onLoginAsAdmin()
+                        } else {
+                            emailError = true
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
@@ -177,5 +190,3 @@ fun LoginScreen(
         }
     }
 }
-
-
