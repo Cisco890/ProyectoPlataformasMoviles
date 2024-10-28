@@ -44,7 +44,7 @@ import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    onNavigateTForgotPassword: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit,
     onLoginAsUser: () -> Unit,
     onLoginAsTutor: () -> Unit,
     onLoginAsAdmin: () -> Unit,
@@ -176,7 +176,7 @@ fun LoginScreen(
                 }
 
                 TextButton(
-                    onClick = onNavigateTForgotPassword,
+                    onClick = onNavigateToForgotPassword,
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
                     Text(

@@ -19,11 +19,10 @@ fun NavGraphBuilder.loginNavigation(
     composable(route = LoginDestination.route) {
         LoginScreen(
             onNavigateToRegister = onNavigateToRegister,
-            onNavigateTForgotPassword = onNavigateToForgotPassword,
+            onNavigateToForgotPassword = onNavigateToForgotPassword,
             onLoginAsUser = onLoginAsUser,
             onLoginAsTutor = onLoginAsTutor,
             onLoginAsAdmin = onLoginAsAdmin
         )
     }
 }
-

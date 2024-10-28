@@ -4,11 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import com.example.tutoriasuvg.data.local.SessionManager
 import com.example.tutoriasuvg.navigation.NavGraph
+import com.example.tutoriasuvg.presentation.login.LoginDestination
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 
 class MainActivity : ComponentActivity() {
 
@@ -18,29 +20,50 @@ class MainActivity : ComponentActivity() {
         setContent {
             TutoriasUVGTheme {
                 val navController = rememberNavController()
-                val context = LocalContext.current
-                val sessionManager = remember { SessionManager(context) }
+                val sessionManager = remember { SessionManager(this) }
 
-                var startDestination by remember { mutableStateOf("login_screen") }
+                var startDestination by remember { mutableStateOf(LoginDestination.route) }
 
-                LaunchedEffect(Unit) {
-                    sessionManager.isLoggedIn.collect { isLoggedIn ->
-                        sessionManager.userType.collect { userType ->
-                            startDestination = if (isLoggedIn && userType != null) {
-                                when (userType) {
-                                    "user" -> "user_screen"
-                                    "tutor" -> "tutor_screen"
-                                    "admin" -> "admin_screen"
-                                    else -> "login_screen"
-                                }
-                            } else {
-                                "login_screen"
+                LaunchedEffect(sessionManager) {
+                    combine(
+                        sessionManager.isLoggedIn,
+                        sessionManager.userType
+                    ) { isLoggedIn, userType ->
+                        if (isLoggedIn && userType != null) {
+                            startDestination = when (userType) {
+                                "user" -> "userNavGraph/user_home"
+                                "tutor" -> "userNavGraph/tutor_home"
+                                "admin" -> "userNavGraph/admin_home"
+                                else -> LoginDestination.route
                             }
+                        } else {
+                            startDestination = LoginDestination.route
                         }
-                    }
+                    }.collect()
                 }
 
-                NavGraph(navController = navController, startDestination = startDestination)
+
+                NavGraph(
+                    navController = navController,
+                    startDestination = startDestination,
+                    onNavigateToForgotPassword = { navController.navigate("forgot_password") },
+                    onNavigateToRegister = { navController.navigate("register") },
+                    onLoginAsUser = {
+                        navController.navigate("userNavGraph/user_home") {
+                            popUpTo(LoginDestination.route) { inclusive = true }
+                        }
+                    },
+                    onLoginAsTutor = {
+                        navController.navigate("userNavGraph/tutor_home") {
+                            popUpTo(LoginDestination.route) { inclusive = true }
+                        }
+                    },
+                    onLoginAsAdmin = {
+                        navController.navigate("userNavGraph/admin_home") {
+                            popUpTo(LoginDestination.route) { inclusive = true }
+                        }
+                    }
+                )
             }
         }
     }
