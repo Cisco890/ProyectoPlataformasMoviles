@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore by preferencesDataStore(name = "user_prefs")
@@ -48,4 +49,12 @@ class SessionManager(private val context: Context) {
         .map { preferences ->
             preferences[USER_TYPE]
         }
+
+    suspend fun isLoggedInSync(): Boolean {
+        return isLoggedIn.first()
+    }
+
+    suspend fun getUserTypeSync(): String? {
+        return userType.first()
+    }
 }
