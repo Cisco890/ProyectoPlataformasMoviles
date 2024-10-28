@@ -41,15 +41,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
-
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onNavigateTForgotPassword: () -> Unit,
+    onLoginAsUser: () -> Unit,
+    onLoginAsTutor: () -> Unit,
+    onLoginAsAdmin: () -> Unit,
     viewModel: LoginViewModel = viewModel()
-){
+) {
     val email = viewModel.email.value
-    val password = viewModel.password.value
     val showError = viewModel.showError.value
 
     Scaffold(
@@ -61,15 +62,14 @@ fun LoginScreen(
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
-
-        ){
+        ) {
             Column(
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
+            ) {
                 Image(
                     painter = painterResource(id = R.drawable.logo_uvg),
                     contentDescription = "Logo en letras UVG",
@@ -77,6 +77,7 @@ fun LoginScreen(
                         .size(150.dp)
                         .padding(bottom = 24.dp)
                 )
+
                 Text(
                     text = "Email",
                     style = MaterialTheme.typography.bodyLarge,
@@ -84,40 +85,24 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .padding(bottom = 8.dp)
                 )
+
                 OutlinedTextField(
                     value = email,
                     onValueChange = { viewModel.onEmailChanged(it) },
-                    label = { Text("Correo Institucional")},
+                    label = { Text("Correo Institucional") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
                     singleLine = true
                 )
-                Text(
-                    text = "Password",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                )
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { viewModel.onPasswordChange(it) },
-                    label = { Text("Contraseña")},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-                )
-                if (showError){
+
+                if (showError) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
                         verticalAlignment = Alignment.CenterVertically
-                   ){
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Warning,
                             contentDescription = "Error",
@@ -125,23 +110,46 @@ fun LoginScreen(
                             modifier = Modifier.size(20.dp)
                         )
                         Text(
-                            text = "Contraseña o Usuario Incorrecto",
+                            text = "Usuario no encontrado",
                             color = androidx.compose.ui.graphics.Color.Red,
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
-
                 }
 
                 Button(
-                    onClick = { viewModel.onLoginClicked() },
+                    onClick = { onLoginAsUser() },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp),
+                        .height(48.dp)
+                        .padding(top = 8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ){
-                    Text(text = "Sign In", fontSize = 16.sp)
+                ) {
+                    Text(text = "Iniciar sesión como Usuario", fontSize = 16.sp)
                 }
+
+                Button(
+                    onClick = { onLoginAsTutor() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .padding(top = 8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(text = "Iniciar sesión como Tutor", fontSize = 16.sp)
+                }
+
+                Button(
+                    onClick = { onLoginAsAdmin() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .padding(top = 8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(text = "Iniciar sesión como Administrador", fontSize = 16.sp)
+                }
+
                 TextButton(
                     onClick = onNavigateToRegister,
                     modifier = Modifier.padding(top = 16.dp)
@@ -159,7 +167,7 @@ fun LoginScreen(
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
                     Text(
-                        text = "¿Olvidaste tu contraseña",
+                        text = "¿Olvidaste tu contraseña?",
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.secondary
@@ -169,3 +177,5 @@ fun LoginScreen(
         }
     }
 }
+
+

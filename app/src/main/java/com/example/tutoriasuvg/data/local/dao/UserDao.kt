@@ -7,10 +7,9 @@ import com.example.tutoriasuvg.data.local.entity.User
 
 @Dao
 interface UserDao {
-
     @Insert
     suspend fun insertUser(user: User)
 
-    @Query("SELECT * FROM user WHERE email = :email AND password = :password")
-    suspend fun loginUser(email: String, password: String): User?
+    @Query("SELECT * FROM user WHERE email = :email")
+    suspend fun loginUserByEmail(email: String): User?
 }

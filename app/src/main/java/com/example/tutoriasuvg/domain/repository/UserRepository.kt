@@ -4,5 +4,5 @@ import com.example.tutoriasuvg.data.local.entity.User
 
 interface UserRepository {
     suspend fun insertUser(user: User)
-    suspend fun loginUser(email: String, password: String): User?
+    suspend fun loginUserByEmail(email: String): User? // Cambiado a loginUserByEmail
 }

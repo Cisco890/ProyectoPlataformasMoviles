@@ -10,7 +10,7 @@ class UserRepositoryImpl(private val userDao: UserDao) : UserRepository {
         userDao.insertUser(user)
     }
 
-    override suspend fun loginUser(email: String, password: String): User? {
-        return userDao.loginUser(email, password)
+    override suspend fun loginUserByEmail(email: String): User? {
+        return userDao.loginUserByEmail(email)
     }
 }
