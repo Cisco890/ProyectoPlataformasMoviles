@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.tutoriasuvg.data.local.SessionManager
 import com.example.tutoriasuvg.presentation.forgotpassword.forgotPasswordNavigation
 import com.example.tutoriasuvg.presentation.funcionalidades_admin.*
 import com.example.tutoriasuvg.presentation.funcionalidades_tutores.*
@@ -19,6 +20,7 @@ import kotlinx.serialization.json.Json
 fun NavGraph(
     navController: NavHostController,
     startDestination: String = LoginDestination.route,
+    sessionManager: SessionManager,
     onNavigateToForgotPassword: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onLoginAsUser: () -> Unit,
@@ -75,7 +77,7 @@ fun NavGraph(
         }
 
         composable("progresoHorasBeca") {
-            ProgresoHorasBecaNavigation(navController)
+            ProgresoHorasBecaNavigation(navController, sessionManager)
         }
 
         composable(HomePageAdminDestination().route) {

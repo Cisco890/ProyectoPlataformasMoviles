@@ -28,7 +28,8 @@ import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 @Composable
 fun ProgresoHorasBeca(
     viewModel: ProgresoHorasBecaViewModel = viewModel(),
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     val nombreEstudiante = viewModel.nombreEstudiante.collectAsState().value
     val horasCompletadas = viewModel.horasCompletadas.collectAsState().value
@@ -100,6 +101,18 @@ fun ProgresoHorasBeca(
                 percentage = porcentajeProgreso,
                 displayPercentage = (porcentajeProgreso * 100).toInt()
             )
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Botón de cerrar sesión
+            Button(
+                onClick = { onLogoutClick() },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+            ) {
+                Text(text = "Cerrar sesión", color = Color.White, fontSize = 16.sp)
+            }
         }
     }
 }
@@ -142,12 +155,12 @@ fun CircularProgressBar(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ProgresoHorasBecaPreview() {
-    TutoriasUVGTheme {
-        ProgresoHorasBeca(
-            onBackClick = {/**/}
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun ProgresoHorasBecaPreview() {
+//    TutoriasUVGTheme {
+//        ProgresoHorasBeca(
+//            onBackClick = {/**/}
+//        )
+//    }
+//}

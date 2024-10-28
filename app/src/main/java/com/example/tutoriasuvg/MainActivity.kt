@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
                     NavGraph(
                         navController = navController,
                         startDestination = startDestination,
+                        sessionManager = sessionManager,
                         onNavigateToForgotPassword = { navController.navigate("forgot_password") },
                         onNavigateToRegister = { navController.navigate("register") },
                         onLoginAsUser = { startDelayedNavigation(navController, "userNavGraph/user_home", setLoading = { isLoading = it }) },
