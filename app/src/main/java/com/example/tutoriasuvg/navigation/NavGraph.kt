@@ -29,7 +29,6 @@ fun NavGraph(
         navController = navController,
         startDestination = startDestination
     ) {
-        // Login and Registration Destinations
         loginNavigation(
             onNavigateToRegister = onNavigateToRegister,
             onNavigateToForgotPassword = onNavigateToForgotPassword,
@@ -42,7 +41,6 @@ fun NavGraph(
         registerTutorNavigation(onBackToLogin = { navController.popBackStack() })
         forgotPasswordNavigation(onBackToLogin = { navController.popBackStack() })
 
-        // User-Type Specific Navigation
         composable("userNavGraph/{userType}") { backStackEntry ->
             val userType = backStackEntry.arguments?.getString("userType") ?: "user_home"
             when (userType) {
@@ -62,7 +60,6 @@ fun NavGraph(
             }
         }
 
-        // Tutores Functionalities
         composable("homePageTutores") {
             HomePageTutoresNavigation(navController)
         }
@@ -81,7 +78,6 @@ fun NavGraph(
             ProgresoHorasBecaNavigation(navController)
         }
 
-        // Admin Functionalities
         composable(HomePageAdminDestination().route) {
             HomePageAdminNavigation(navController)
         }
