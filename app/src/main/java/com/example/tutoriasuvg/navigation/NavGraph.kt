@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.tutoriasuvg.presentation.forgotpassword.ForgotPasswordDestination
 import com.example.tutoriasuvg.presentation.forgotpassword.forgotPasswordNavigation
+import com.example.tutoriasuvg.presentation.funcionalidades_admin.HomePageAdminDestination
 import com.example.tutoriasuvg.presentation.login.LoginDestination
 import com.example.tutoriasuvg.presentation.login.loginNavigation
 import com.example.tutoriasuvg.presentation.signup.RegisterDestination
@@ -26,9 +27,9 @@ fun NavGraph(
         loginNavigation(
             onNavigateToRegister = { navController.navigate(RegisterDestination.route) },
             onNavigateToForgotPassword = { navController.navigate(ForgotPasswordDestination.route) },
-            onLoginAsUser = { navController.navigate("user_screen") },
-            onLoginAsTutor = { navController.navigate("tutor_screen") },
-            onLoginAsAdmin = { navController.navigate("admin_screen") }
+            onLoginAsUser = { navController.navigate("userNavGraph/user_home") },
+            onLoginAsTutor = { navController.navigate("userNavGraph/tutor_home") },
+            onLoginAsAdmin = { navController.navigate("userNavGraph/admin_home") }
         )
 
         registerNavigation(
@@ -43,10 +44,19 @@ fun NavGraph(
             onBackToLogin = { navController.popBackStack() }
         )
 
-        composable("user_screen") { /* Contenido de la pantalla de usuario */ }
-        composable("tutor_screen") { /* Contenido de la pantalla de tutor */ }
-        composable("admin_screen") { /* Contenido de la pantalla de administrador */ }
+        composable("userNavGraph/{userType}") { backStackEntry ->
+            val userType = backStackEntry.arguments?.getString("userType") ?: "user_home"
+            val userNavStartDestination = when (userType) {
+                "user_home" -> HomePageAdminDestination().route
+                "tutor_home" -> "homePageTutores"
+                "admin_home" -> HomePageAdminDestination().route
+                else -> "login_screen"
+            }
+            UserNavGraph(navController = navController, startDestination = userNavStartDestination)
+        }
     }
 }
+
+
 
 

@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.tutoriasuvg.presentation.funcionalidades_admin.HomePageAdminDestination
 import com.example.tutoriasuvg.presentation.funcionalidades_admin.HomePageAdminNavigation
@@ -21,10 +22,15 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Composable
-fun UserNavGraph(navController: NavHostController) {
+fun UserNavGraph(
+    navController: NavHostController,
+    startDestination: String
+) {
+    val userNavController = rememberNavController()
+
     NavHost(
-        navController = navController,
-        startDestination = HomePageAdminDestination().route
+        navController = userNavController,
+        startDestination = startDestination
     ) {
         composable("homePageTutores") {
             HomePageTutoresNavigation(navController)
@@ -47,7 +53,6 @@ fun UserNavGraph(navController: NavHostController) {
             ProgresoHorasBecaNavigation(navController)
         }
 
-
         composable(HomePageAdminDestination().route) {
             HomePageAdminNavigation(navController)
         }
@@ -59,8 +64,8 @@ fun UserNavGraph(navController: NavHostController) {
         composable(NotificacionesDestination().route) {
             NotificacionesNavigation(navController)
         }
-
     }
 }
+
 
 
