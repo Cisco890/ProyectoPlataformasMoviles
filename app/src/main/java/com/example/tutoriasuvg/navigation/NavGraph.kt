@@ -12,6 +12,7 @@ import com.example.tutoriasuvg.presentation.funcionalidades_admin.*
 import com.example.tutoriasuvg.presentation.funcionalidades_tutores.*
 import com.example.tutoriasuvg.presentation.login.LoginDestination
 import com.example.tutoriasuvg.presentation.login.loginNavigation
+import com.example.tutoriasuvg.presentation.signup.RegisterDestination
 import com.example.tutoriasuvg.presentation.signup.registerNavigation
 import com.example.tutoriasuvg.presentation.signup.registerTutorNavigation
 import kotlinx.serialization.json.Json
@@ -39,7 +40,12 @@ fun NavGraph(
             onLoginAsAdmin = onLoginAsAdmin
         )
 
-        registerNavigation(onBackToLogin = { navController.popBackStack() })
+        // Actualización para manejar la navegación de registro y estudiante-tutor
+        registerNavigation(
+            onBackToLogin = { navController.popBackStack() },
+            onNavigateToRegisterTutor = { navController.navigate("register_tutor_screen") }
+        )
+
         registerTutorNavigation(onBackToLogin = { navController.popBackStack() })
         forgotPasswordNavigation(onBackToLogin = { navController.popBackStack() })
 

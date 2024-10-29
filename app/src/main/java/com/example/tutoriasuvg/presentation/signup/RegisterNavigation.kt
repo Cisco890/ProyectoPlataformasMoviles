@@ -10,11 +10,13 @@ data object RegisterDestination {
 }
 
 fun NavGraphBuilder.registerNavigation(
-    onBackToLogin: () -> Unit
+    onBackToLogin: () -> Unit,
+    onNavigateToRegisterTutor: () -> Unit
 ) {
     composable(route = RegisterDestination.route) {
         RegisterScreen(
-            onBackToLogin = onBackToLogin
+            onBackToLogin = onBackToLogin,
+            onNavigateToRegisterTutor = onNavigateToRegisterTutor
         )
     }
 }

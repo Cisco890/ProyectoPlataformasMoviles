@@ -2,35 +2,12 @@ package com.example.tutoriasuvg.presentation.signup
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -44,6 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun RegisterScreen(
     onBackToLogin: () -> Unit,
+    onNavigateToRegisterTutor: () -> Unit,
     viewModel: RegisterViewModel = viewModel()
 ) {
     val name by viewModel.name.collectAsState()
@@ -163,6 +141,7 @@ fun RegisterScreen(
                         }
                     }
                 )
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -171,7 +150,12 @@ fun RegisterScreen(
                 ) {
                     Checkbox(
                         checked = isTutor,
-                        onCheckedChange = { viewModel.onTutorChecked(it) },
+                        onCheckedChange = {
+                            viewModel.onTutorChecked(it)
+                            if (it) {
+                                onNavigateToRegisterTutor()
+                            }
+                        },
                         colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.primary)
                     )
                     Text(

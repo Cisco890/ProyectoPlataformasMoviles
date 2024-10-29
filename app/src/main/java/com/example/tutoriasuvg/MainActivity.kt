@@ -7,8 +7,10 @@ import androidx.compose.runtime.*
 import androidx.navigation.compose.rememberNavController
 import com.example.tutoriasuvg.data.local.SessionManager
 import com.example.tutoriasuvg.navigation.NavGraph
+import com.example.tutoriasuvg.presentation.forgotpassword.ForgotPasswordDestination
 import com.example.tutoriasuvg.presentation.login.LoadingScreen
 import com.example.tutoriasuvg.presentation.login.LoginDestination
+import com.example.tutoriasuvg.presentation.signup.RegisterDestination
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import kotlinx.coroutines.launch
 
@@ -55,8 +57,8 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         sessionManager = sessionManager,
                         startDestination = startDestination!!,
-                        onNavigateToForgotPassword = { navController.navigate("forgot_password") },
-                        onNavigateToRegister = { navController.navigate("register") },
+                        onNavigateToForgotPassword = { navController.navigate(ForgotPasswordDestination.route) },
+                        onNavigateToRegister = { navController.navigate(RegisterDestination.route) },
                         onLoginAsUser = {
                             coroutineScope.launch {
                                 isLoading = true
@@ -64,7 +66,7 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("userNavGraph/user_home") {
                                     popUpTo(LoginDestination.route) { inclusive = true }
                                 }
-                                isLoading = false  
+                                isLoading = false
                             }
                         },
                         onLoginAsTutor = {
