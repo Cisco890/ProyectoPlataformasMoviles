@@ -14,8 +14,11 @@ import com.example.tutoriasuvg.presentation.login.LoginDestination
 import com.example.tutoriasuvg.presentation.signup.RegisterDestination
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class MainActivity : ComponentActivity() {
 
@@ -28,43 +31,66 @@ class MainActivity : ComponentActivity() {
             TutoriasUVGTheme {
                 val navController = rememberNavController()
                 val sessionManager = remember { SessionManager(this) }
+                val firebaseAuth = FirebaseAuth.getInstance()
+                val firestore = FirebaseFirestore.getInstance()
 
-                var startDestination by remember { mutableStateOf<String?>(null) }
-                var isLoading by remember { mutableStateOf(true) } // Start with loading screen
+                var isLoading by remember { mutableStateOf(true) }
+                var startDestination by remember { mutableStateOf(LoginDestination.route) }
                 val coroutineScope = rememberCoroutineScope()
 
                 LaunchedEffect(Unit) {
-                    val isLoggedIn = sessionManager.isLoggedInSync()
-                    val userType = sessionManager.getUserTypeSync()
+                    val currentUser = firebaseAuth.currentUser
+                    if (currentUser != null) {
+                        val userId = currentUser.uid
+                        val userDocRef = firestore.collection("user_sessions").document(userId)
 
-                    startDestination = if (isLoggedIn) {
-                        when (userType) {
-                            "student" -> "homePageEstudiantes"
-                            "tutor" -> "homePageTutores"
-                            "admin" -> HomePageAdminDestination().route
-                            else -> LoginDestination.route
+                        try {
+                            val document = userDocRef.get().await()
+                            if (document.exists()) {
+                                val userType = document.getString("userType") ?: "student"
+                                startDestination = when (userType) {
+                                    "student" -> "homePageEstudiantes"
+                                    "tutor" -> "homePageTutores"
+                                    "admin" -> HomePageAdminDestination().route
+                                    else -> LoginDestination.route
+                                }
+                            } else {
+                                startDestination = LoginDestination.route
+                            }
+                        } catch (e: Exception) {
+                            startDestination = LoginDestination.route
+                        } finally {
+                            isLoading = false
                         }
                     } else {
-                        LoginDestination.route
+                        startDestination = LoginDestination.route
+                        isLoading = false
                     }
-
-                    delay(500)
-                    isLoading = false
                 }
 
                 if (isLoading) {
                     LoadingScreen()
-                } else if (startDestination != null) {
+                } else {
                     NavGraph(
                         navController = navController,
                         sessionManager = sessionManager,
-                        startDestination = startDestination!!,
+                        startDestination = startDestination,
                         onNavigateToForgotPassword = { navController.navigate(ForgotPasswordDestination.route) },
                         onNavigateToRegister = { navController.navigate(RegisterDestination.route) },
                         onLoginSuccess = { userType ->
                             coroutineScope.launch {
-                                isLoading = true
-                                sessionManager.saveLoginSession("user_email", userType)
+                                val userId = firebaseAuth.currentUser?.uid ?: return@launch
+
+                                firestore.collection("user_sessions").document(userId).set(
+                                    mapOf(
+                                        "userType" to userType,
+                                        "isLoggedIn" to true
+                                    )
+                                )
+
+                                sessionManager.saveUserType(userType, firebaseAuth.currentUser?.email.orEmpty())
+
+                                delay(200)
 
                                 val destination = when (userType) {
                                     "student" -> "homePageEstudiantes"
@@ -76,7 +102,6 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate(destination) {
                                     popUpTo(LoginDestination.route) { inclusive = true }
                                 }
-                                isLoading = false
                             }
                         }
                     )

@@ -1,10 +1,11 @@
 package com.example.tutoriasuvg.data.local
 
 import android.content.Context
-import androidx.datastore.preferences.core.booleanPreferencesKey
+import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -14,47 +15,61 @@ private val Context.dataStore by preferencesDataStore(name = "user_prefs")
 class SessionManager(private val context: Context) {
 
     companion object {
-        val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
-        val USER_EMAIL = stringPreferencesKey("user_email")
-        val USER_TYPE = stringPreferencesKey("user_type")
+        private val USER_TYPE_KEY = stringPreferencesKey("user_type")
+        private val USER_EMAIL_KEY = stringPreferencesKey("user_email")
+        private const val TAG = "SessionManager"
     }
 
-    suspend fun saveLoginSession(email: String, userType: String) {
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
+    /**
+     * Guarda el tipo de usuario en DataStore.
+     */
+    suspend fun saveUserType(userType: String, email: String) {
+        Log.d(TAG, "Saving user type: $userType with email: $email")
         context.dataStore.edit { preferences ->
-            preferences[IS_LOGGED_IN] = true
-            preferences[USER_EMAIL] = email
-            preferences[USER_TYPE] = userType
+            preferences[USER_TYPE_KEY] = userType
+            preferences[USER_EMAIL_KEY] = email
+            Log.d(TAG, "User type saved in DataStore successfully.")
         }
     }
 
+    /**
+     * Borra la sesión y cierra la sesión de Firebase.
+     */
     suspend fun clearSession() {
+        auth.signOut()
         context.dataStore.edit { preferences ->
-            preferences[IS_LOGGED_IN] = false
-            preferences[USER_EMAIL] = ""
-            preferences[USER_TYPE] = ""
+            preferences.clear()
+            Log.d(TAG, "Session cleared from DataStore and FirebaseAuth.")
         }
     }
 
-    val isLoggedIn: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[IS_LOGGED_IN] ?: false
-        }
+    /**
+     * Verifica si el usuario está actualmente autenticado en Firebase.
+     */
+    fun isUserLoggedIn(): Boolean {
+        val loggedIn = auth.currentUser != null
+        Log.d(TAG, "FirebaseAuth user logged in: $loggedIn")
+        return loggedIn
+    }
 
-    val userEmail: Flow<String?> = context.dataStore.data
-        .map { preferences ->
-            preferences[USER_EMAIL]
-        }
-
+    /**
+     * Devuelve un flujo del tipo de usuario almacenado.
+     */
     val userType: Flow<String?> = context.dataStore.data
         .map { preferences ->
-            preferences[USER_TYPE]
+            val type = preferences[USER_TYPE_KEY]
+            Log.d(TAG, "Retrieved user type from DataStore: $type")
+            type
         }
 
-    suspend fun isLoggedInSync(): Boolean {
-        return isLoggedIn.first()
-    }
-
+    /**
+     * Método síncrono para obtener el tipo de usuario desde DataStore.
+     */
     suspend fun getUserTypeSync(): String? {
-        return userType.first()
+        val type = userType.first()
+        Log.d(TAG, "Synchronously retrieved user type from DataStore: $type")
+        return type
     }
 }
