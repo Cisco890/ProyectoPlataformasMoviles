@@ -57,7 +57,7 @@ fun NavGraph(
         registerNavigation(
             onBackToLogin = {
                 navController.navigate(LoginDestination.route) {
-                    popUpTo(0) 
+                    popUpTo(0)
                     launchSingleTop = true
                 }
             },

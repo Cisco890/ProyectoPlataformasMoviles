@@ -24,7 +24,7 @@ class RegisterTutorViewModel : ViewModel() {
         "Química General", "Algoritmos y Programación Básica", "Cálculo 1",
         "Física 1", "Álgebra Lineal", "Estadística 1", "Ciudadanía Global",
         "Programación Orientada a Objetos", "Cálculo 2", "Física 2",
-        "Algoritmos y Estructuras de Datos", "Organización de Computadoras y Assambler",
+        "Algoritmos y Estructuras de Datos", "Organización de Computadoras y Assembler",
         "Guatemala en el Contexto Mundial", "Retos Ambientales y Sostenibilidad",
         "Física 3", "Ecuaciones Diferenciales 1", "Investigación y Pensamiento Cuantitativo",
         "Matemática Discreta 1", "Programación de Microprocesadores",
@@ -71,24 +71,45 @@ class RegisterTutorViewModel : ViewModel() {
         val userId = currentUser.uid
         val selectedCoursesList = _selectedCourses.value.filterValues { it }.keys.toList()
 
-        val tutorData = hashMapOf(
+        val tutorData = mapOf(
             "year" to _year.value,
             "hours" to _hours.value,
             "courses" to selectedCoursesList,
             "userType" to "tutor"
         )
 
-        Log.d("RegisterTutorViewModel", "Intentando guardar datos de tutor para el usuario $userId")
-
-        firestore.collection("users").document(userId).set(tutorData)
-            .addOnSuccessListener {
-                _errorMessage.value = ""
-                _isRegistered.value = true
-                Log.d("RegisterTutorViewModel", "Registro de tutor exitoso en Firestore.")
+        // Verificar si el documento del usuario ya existe en Firestore
+        firestore.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // Actualizar solo los campos específicos del tutor sin sobrescribir datos existentes
+                    firestore.collection("users").document(userId).update(tutorData)
+                        .addOnSuccessListener {
+                            _errorMessage.value = ""
+                            _isRegistered.value = true
+                            Log.d("RegisterTutorViewModel", "Datos del tutor actualizados en Firestore.")
+                        }
+                        .addOnFailureListener { e ->
+                            _errorMessage.value = "Error al actualizar datos del tutor en Firestore: ${e.message}"
+                            Log.e("RegisterTutorViewModel", "Error al actualizar datos del tutor en Firestore: ${e.message}")
+                        }
+                } else {
+                    // Si el documento no existe, crear uno nuevo con toda la información de tutor
+                    firestore.collection("users").document(userId).set(tutorData)
+                        .addOnSuccessListener {
+                            _errorMessage.value = ""
+                            _isRegistered.value = true
+                            Log.d("RegisterTutorViewModel", "Registro de tutor exitoso en Firestore.")
+                        }
+                        .addOnFailureListener { e ->
+                            _errorMessage.value = "Error al registrar datos del tutor en Firestore: ${e.message}"
+                            Log.e("RegisterTutorViewModel", "Error al registrar datos del tutor en Firestore: ${e.message}")
+                        }
+                }
             }
             .addOnFailureListener { e ->
-                _errorMessage.value = "Error al registrar datos del tutor en Firestore: ${e.message}"
-                Log.e("RegisterTutorViewModel", "Error al registrar datos del tutor en Firestore: ${e.message}")
+                _errorMessage.value = "Error al verificar la existencia del usuario en Firestore: ${e.message}"
+                Log.e("RegisterTutorViewModel", "Error al verificar la existencia del usuario en Firestore: ${e.message}")
             }
     }
 }

@@ -12,11 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
-import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import kotlinx.coroutines.launch
 
 @Composable
@@ -28,13 +26,22 @@ fun RegisterStudentTutorScreen(
     val hours by viewModel.hours.collectAsState()
     val selectedCourses by viewModel.selectedCourses.collectAsState()
     val courses = viewModel.courses
-    val errorMessage by viewModel.errorMessage.collectAsState() // Error message for validation
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val isRegistered by viewModel.isRegistered.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // Validación de que todos los campos requeridos estén completos
+    // Verifica que todos los campos requeridos estén completos
     val isFormValid = year.isNotBlank() && hours.isNotBlank() && selectedCourses.values.any { it }
+
+    // Monitorea el estado de registro para redirigir a la pantalla de login
+    LaunchedEffect(isRegistered) {
+        if (isRegistered) {
+            snackbarHostState.showSnackbar("Registrado correctamente")
+            onBackToLogin()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -61,7 +68,7 @@ fun RegisterStudentTutorScreen(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.logo_uvg),
-                    contentDescription = "Logo en letras UVG",
+                    contentDescription = "Logo UVG",
                     modifier = Modifier
                         .size(150.dp)
                         .padding(bottom = 8.dp)
@@ -164,10 +171,7 @@ fun RegisterStudentTutorScreen(
                 Button(
                     onClick = {
                         if (isFormValid) {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Registrado correctamente")
-                                onBackToLogin() // Navega al inicio de sesión después del registro exitoso
-                            }
+                            viewModel.registerTutor() // Llama a la función para registrar en Firestore
                         } else {
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar("Por favor complete todos los campos")
@@ -177,7 +181,7 @@ fun RegisterStudentTutorScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    enabled = isFormValid, // El botón solo está habilitado si el formulario es válido
+                    enabled = isFormValid,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
@@ -188,9 +192,7 @@ fun RegisterStudentTutorScreen(
                 }
 
                 Button(
-                    onClick = {
-                        onBackToLogin() // Navega al inicio de sesión al presionar este botón
-                    },
+                    onClick = { onBackToLogin() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),
@@ -206,4 +208,3 @@ fun RegisterStudentTutorScreen(
         }
     }
 }
-

@@ -38,13 +38,10 @@ fun RegisterScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // Estados para la visibilidad de las contraseñas
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
-    // Verificación de formulario completo
     val isFormValid = name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
-
     val buttonText = if (isTutor) "Continuar" else "Registrarse"
 
     Scaffold(
@@ -83,6 +80,7 @@ fun RegisterScreen(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
+
                 OutlinedTextField(
                     value = name,
                     onValueChange = { viewModel.onNameChanged(it) },
@@ -100,6 +98,7 @@ fun RegisterScreen(
                         }
                     }
                 )
+
                 OutlinedTextField(
                     value = email,
                     onValueChange = { viewModel.onEmailChanged(it) },
@@ -118,6 +117,7 @@ fun RegisterScreen(
                         }
                     }
                 )
+
                 OutlinedTextField(
                     value = password,
                     onValueChange = { viewModel.onPasswordChanged(it) },
@@ -136,6 +136,7 @@ fun RegisterScreen(
                         }
                     }
                 )
+
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { viewModel.onConfirmPasswordChanged(it) },
@@ -183,28 +184,18 @@ fun RegisterScreen(
 
                 Button(
                     onClick = {
-                        if (isTutor) {
-                            if (isFormValid) {
-                                onNavigateToRegisterTutor()
-                            } else {
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("Por favor complete todos los campos")
-                                }
-                            }
+                        if (isFormValid) {
+                            viewModel.onRegisterClicked() // Llama al método de registro
                         } else {
-                            if (isFormValid) {
-                                viewModel.onRegisterClicked()
-                            } else {
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("Por favor complete todos los campos")
-                                }
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Por favor complete todos los campos")
                             }
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    enabled = isFormValid, // Deshabilita el botón si el formulario está incompleto
+                    enabled = isFormValid,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
@@ -214,12 +205,15 @@ fun RegisterScreen(
                     )
                 }
 
-                // Muestra un Snackbar y navega al login si el registro fue exitoso
                 LaunchedEffect(isRegistered) {
                     if (isRegistered) {
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar("Registrado correctamente")
-                            onBackToLogin()
+                            if (isTutor) {
+                                onNavigateToRegisterTutor() // Navega a la siguiente pantalla solo si es tutor
+                            } else {
+                                onBackToLogin() // Navega al login si no es tutor
+                            }
                         }
                     }
                 }
