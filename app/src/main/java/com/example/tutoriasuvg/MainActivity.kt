@@ -12,12 +12,15 @@ import com.example.tutoriasuvg.presentation.login.LoadingScreen
 import com.example.tutoriasuvg.presentation.login.LoginDestination
 import com.example.tutoriasuvg.presentation.signup.RegisterDestination
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
+import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        FirebaseApp.initializeApp(this)
 
         setContent {
             TutoriasUVGTheme {

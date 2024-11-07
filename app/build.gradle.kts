@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.splashscreen)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.firebase.common.ktx)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     implementation(platform(libs.firebase.bom))
