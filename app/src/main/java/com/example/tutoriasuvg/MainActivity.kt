@@ -14,6 +14,7 @@ import com.example.tutoriasuvg.presentation.login.LoginDestination
 import com.example.tutoriasuvg.presentation.signup.RegisterDestination
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import com.google.firebase.FirebaseApp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -29,29 +30,26 @@ class MainActivity : ComponentActivity() {
                 val sessionManager = remember { SessionManager(this) }
 
                 var startDestination by remember { mutableStateOf<String?>(null) }
-                var isLoading by remember { mutableStateOf(false) }
+                var isLoading by remember { mutableStateOf(true) } // Start with loading screen
                 val coroutineScope = rememberCoroutineScope()
 
                 LaunchedEffect(Unit) {
                     val isLoggedIn = sessionManager.isLoggedInSync()
                     val userType = sessionManager.getUserTypeSync()
 
-                    if (isLoggedIn) {
-                        isLoading = true
-                        startDestination = when (userType) {
+                    startDestination = if (isLoggedIn) {
+                        when (userType) {
                             "student" -> "homePageEstudiantes"
                             "tutor" -> "homePageTutores"
                             "admin" -> HomePageAdminDestination().route
                             else -> LoginDestination.route
                         }
                     } else {
-                        startDestination = LoginDestination.route
+                        LoginDestination.route
                     }
 
-                    if (isLoading) {
-                        kotlinx.coroutines.delay(0)
-                        isLoading = false
-                    }
+                    delay(500)
+                    isLoading = false
                 }
 
                 if (isLoading) {

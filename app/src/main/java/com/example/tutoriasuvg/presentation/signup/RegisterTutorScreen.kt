@@ -28,9 +28,13 @@ fun RegisterStudentTutorScreen(
     val hours by viewModel.hours.collectAsState()
     val selectedCourses by viewModel.selectedCourses.collectAsState()
     val courses = viewModel.courses
+    val errorMessage by viewModel.errorMessage.collectAsState() // Error message for validation
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    // Validación de que todos los campos requeridos estén completos
+    val isFormValid = year.isNotBlank() && hours.isNotBlank() && selectedCourses.values.any { it }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -111,7 +115,9 @@ fun RegisterStudentTutorScreen(
                         items(courses) { course ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(4.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(4.dp)
                             ) {
                                 Checkbox(
                                     checked = selectedCourses[course] ?: false,
@@ -146,15 +152,32 @@ fun RegisterStudentTutorScreen(
                     }
                 )
 
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+
                 Button(
                     onClick = {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Registrado correctamente")
+                        if (isFormValid) {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Registrado correctamente")
+                                onBackToLogin() // Navega al inicio de sesión después del registro exitoso
+                            }
+                        } else {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Por favor complete todos los campos")
+                            }
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
+                    enabled = isFormValid, // El botón solo está habilitado si el formulario es válido
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
@@ -165,7 +188,9 @@ fun RegisterStudentTutorScreen(
                 }
 
                 Button(
-                    onClick = onBackToLogin,
+                    onClick = {
+                        onBackToLogin() // Navega al inicio de sesión al presionar este botón
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),
@@ -182,13 +207,3 @@ fun RegisterStudentTutorScreen(
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun RegisterStudentTutorScreenPreview() {
-    TutoriasUVGTheme {
-        RegisterStudentTutorScreen(
-            onBackToLogin = {}
-        )
-    }
-}

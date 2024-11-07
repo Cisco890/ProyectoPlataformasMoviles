@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.tutoriasuvg.R
 import kotlinx.coroutines.launch
@@ -34,6 +37,13 @@ fun RegisterScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    // Estados para la visibilidad de las contraseñas
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    // Verificación de formulario completo
+    val isFormValid = name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
 
     val buttonText = if (isTutor) "Continuar" else "Registrarse"
 
@@ -116,12 +126,12 @@ fun RegisterScreen(
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
                     singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { viewModel.onPasswordChanged("") }) {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Limpiar contraseña"
+                                imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
                             )
                         }
                     }
@@ -134,12 +144,12 @@ fun RegisterScreen(
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
                     singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { viewModel.onConfirmPasswordChanged("") }) {
+                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                             Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Limpiar verificación contraseña"
+                                imageVector = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (confirmPasswordVisible) "Ocultar verificación contraseña" else "Mostrar verificación contraseña"
                             )
                         }
                     }
@@ -174,14 +184,27 @@ fun RegisterScreen(
                 Button(
                     onClick = {
                         if (isTutor) {
-                            onNavigateToRegisterTutor()
+                            if (isFormValid) {
+                                onNavigateToRegisterTutor()
+                            } else {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar("Por favor complete todos los campos")
+                                }
+                            }
                         } else {
-                            viewModel.onRegisterClicked()
+                            if (isFormValid) {
+                                viewModel.onRegisterClicked()
+                            } else {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar("Por favor complete todos los campos")
+                                }
+                            }
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
+                    enabled = isFormValid, // Deshabilita el botón si el formulario está incompleto
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
@@ -191,10 +214,12 @@ fun RegisterScreen(
                     )
                 }
 
+                // Muestra un Snackbar y navega al login si el registro fue exitoso
                 LaunchedEffect(isRegistered) {
                     if (isRegistered) {
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar("Registrado correctamente")
+                            onBackToLogin()
                         }
                     }
                 }

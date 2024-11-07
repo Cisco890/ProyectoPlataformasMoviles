@@ -1,6 +1,7 @@
 package com.example.tutoriasuvg.presentation.signup
 
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavController
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 
@@ -10,11 +11,16 @@ data object RegisterTutorDestination {
 }
 
 fun NavGraphBuilder.registerTutorNavigation(
-    onBackToLogin: () -> Unit
+    navController: NavController
 ) {
     composable(route = RegisterTutorDestination.route) {
         RegisterStudentTutorScreen(
-            onBackToLogin = onBackToLogin
+            onBackToLogin = {
+                navController.navigate("login_screen") {
+                    popUpTo(0)
+                    launchSingleTop = true
+                }
+            }
         )
     }
 }

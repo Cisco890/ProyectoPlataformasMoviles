@@ -55,11 +55,18 @@ fun NavGraph(
 
         // Navegación de Registro y Recuperación de Contraseña
         registerNavigation(
-            onBackToLogin = { navController.popBackStack() },
+            onBackToLogin = {
+                navController.navigate(LoginDestination.route) {
+                    popUpTo(0) 
+                    launchSingleTop = true
+                }
+            },
             onNavigateToRegisterTutor = { navController.navigate("register_tutor_screen") }
         )
 
-        registerTutorNavigation(onBackToLogin = { navController.popBackStack() })
+        // Llamada corregida para `registerTutorNavigation`
+        registerTutorNavigation(navController = navController)
+
         forgotPasswordNavigation(onBackToLogin = { navController.popBackStack() })
 
         // Pantallas de estudiantes
@@ -126,3 +133,5 @@ fun NavGraph(
         }
     }
 }
+
+

@@ -1,14 +1,17 @@
 package com.example.tutoriasuvg.presentation.signup
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class RegisterTutorViewModel : ViewModel() {
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     private val _year = MutableStateFlow("")
     val year: StateFlow<String> = _year
@@ -51,8 +54,21 @@ class RegisterTutorViewModel : ViewModel() {
         _selectedCourses.value = updatedCourses
     }
 
+    fun registerTutor() {
+        viewModelScope.launch {
+            saveTutorToFirestore()
+        }
+    }
+
     private fun saveTutorToFirestore() {
-        val userId = auth.currentUser?.uid ?: return
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            _errorMessage.value = "No se pudo obtener el ID del usuario. Usuario no autenticado."
+            Log.e("RegisterTutorViewModel", "No se pudo obtener el ID del usuario.")
+            return
+        }
+
+        val userId = currentUser.uid
         val selectedCoursesList = _selectedCourses.value.filterValues { it }.keys.toList()
 
         val tutorData = hashMapOf(
@@ -62,13 +78,17 @@ class RegisterTutorViewModel : ViewModel() {
             "userType" to "tutor"
         )
 
-        firestore.collection("users").document(userId).update(tutorData)
+        Log.d("RegisterTutorViewModel", "Intentando guardar datos de tutor para el usuario $userId")
+
+        firestore.collection("users").document(userId).set(tutorData)
             .addOnSuccessListener {
                 _errorMessage.value = ""
                 _isRegistered.value = true
+                Log.d("RegisterTutorViewModel", "Registro de tutor exitoso en Firestore.")
             }
             .addOnFailureListener { e ->
                 _errorMessage.value = "Error al registrar datos del tutor en Firestore: ${e.message}"
+                Log.e("RegisterTutorViewModel", "Error al registrar datos del tutor en Firestore: ${e.message}")
             }
     }
 }
