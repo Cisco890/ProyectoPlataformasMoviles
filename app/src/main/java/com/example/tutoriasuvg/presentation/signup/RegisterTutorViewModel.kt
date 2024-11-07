@@ -1,10 +1,15 @@
 package com.example.tutoriasuvg.presentation.signup
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class RegisterTutorViewModel : ViewModel() {
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
     private val _year = MutableStateFlow("")
     val year: StateFlow<String> = _year
 
@@ -26,6 +31,12 @@ class RegisterTutorViewModel : ViewModel() {
     private val _selectedCourses = MutableStateFlow<Map<String, Boolean>>(emptyMap())
     val selectedCourses: StateFlow<Map<String, Boolean>> = _selectedCourses
 
+    private val _errorMessage = MutableStateFlow("")
+    val errorMessage: StateFlow<String> = _errorMessage
+
+    private val _isRegistered = MutableStateFlow(false)
+    val isRegistered: StateFlow<Boolean> = _isRegistered
+
     fun onYearChanged(newYear: String) {
         _year.value = newYear
     }
@@ -38,5 +49,26 @@ class RegisterTutorViewModel : ViewModel() {
         val updatedCourses = _selectedCourses.value.toMutableMap()
         updatedCourses[course] = isChecked
         _selectedCourses.value = updatedCourses
+    }
+
+    private fun saveTutorToFirestore() {
+        val userId = auth.currentUser?.uid ?: return
+        val selectedCoursesList = _selectedCourses.value.filterValues { it }.keys.toList()
+
+        val tutorData = hashMapOf(
+            "year" to _year.value,
+            "hours" to _hours.value,
+            "courses" to selectedCoursesList,
+            "userType" to "tutor"
+        )
+
+        firestore.collection("users").document(userId).update(tutorData)
+            .addOnSuccessListener {
+                _errorMessage.value = ""
+                _isRegistered.value = true
+            }
+            .addOnFailureListener { e ->
+                _errorMessage.value = "Error al registrar datos del tutor en Firestore: ${e.message}"
+            }
     }
 }

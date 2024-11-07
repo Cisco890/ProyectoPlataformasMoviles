@@ -30,9 +30,12 @@ fun RegisterScreen(
     val confirmPassword by viewModel.confirmPassword.collectAsState()
     val isTutor by viewModel.isTutor.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val isRegistered by viewModel.isRegistered.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    val buttonText = if (isTutor) "Continuar" else "Registrarse"
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -150,12 +153,7 @@ fun RegisterScreen(
                 ) {
                     Checkbox(
                         checked = isTutor,
-                        onCheckedChange = {
-                            viewModel.onTutorChecked(it)
-                            if (it) {
-                                onNavigateToRegisterTutor()
-                            }
-                        },
+                        onCheckedChange = { viewModel.onTutorChecked(it) },
                         colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.primary)
                     )
                     Text(
@@ -175,11 +173,10 @@ fun RegisterScreen(
 
                 Button(
                     onClick = {
-                        viewModel.onRegisterClicked()
-                        coroutineScope.launch {
-                            if (errorMessage.isEmpty()) {
-                                snackbarHostState.showSnackbar("Registrado correctamente")
-                            }
+                        if (isTutor) {
+                            onNavigateToRegisterTutor()
+                        } else {
+                            viewModel.onRegisterClicked()
                         }
                     },
                     modifier = Modifier
@@ -188,10 +185,18 @@ fun RegisterScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
-                        text = "Registrarse",
+                        text = buttonText,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
+                }
+
+                LaunchedEffect(isRegistered) {
+                    if (isRegistered) {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("Registrado correctamente")
+                        }
+                    }
                 }
 
                 Button(
