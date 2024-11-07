@@ -26,7 +26,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     private val _confirmPassword = MutableStateFlow("")
     val confirmPassword: StateFlow<String> = _confirmPassword
 
-    private val _isTutor = MutableStateFlow(false) // Añadimos isTutor para el checkbox
+    private val _isTutor = MutableStateFlow(false)
     val isTutor: StateFlow<Boolean> = _isTutor
 
     private val _errorMessage = MutableStateFlow("")

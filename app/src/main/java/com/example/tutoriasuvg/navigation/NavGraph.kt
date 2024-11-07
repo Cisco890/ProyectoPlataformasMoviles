@@ -27,22 +27,33 @@ fun NavGraph(
     sessionManager: SessionManager,
     onNavigateToForgotPassword: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    onLoginAsUser: () -> Unit,
-    onLoginAsTutor: () -> Unit,
-    onLoginAsAdmin: () -> Unit
+    onLoginSuccess: (String) -> Unit
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
+        // Navegación de Login
         loginNavigation(
             onNavigateToRegister = onNavigateToRegister,
             onNavigateToForgotPassword = onNavigateToForgotPassword,
-            onLoginAsUser = onLoginAsUser,
-            onLoginAsTutor = onLoginAsTutor,
-            onLoginAsAdmin = onLoginAsAdmin
+            onLoginSuccess = { userType ->
+                when (userType) {
+                    "student" -> navController.navigate("homePageEstudiantes") {
+                        popUpTo(LoginDestination.route) { inclusive = true }
+                    }
+                    "tutor" -> navController.navigate("homePageTutores") {
+                        popUpTo(LoginDestination.route) { inclusive = true }
+                    }
+                    "admin" -> navController.navigate(HomePageAdminDestination().route) {
+                        popUpTo(LoginDestination.route) { inclusive = true }
+                    }
+                    else -> navController.navigate(LoginDestination.route)
+                }
+            }
         )
 
+        // Navegación de Registro y Recuperación de Contraseña
         registerNavigation(
             onBackToLogin = { navController.popBackStack() },
             onNavigateToRegisterTutor = { navController.navigate("register_tutor_screen") }
@@ -51,31 +62,24 @@ fun NavGraph(
         registerTutorNavigation(onBackToLogin = { navController.popBackStack() })
         forgotPasswordNavigation(onBackToLogin = { navController.popBackStack() })
 
-        composable("userNavGraph/{userType}") { backStackEntry ->
-            val userType = backStackEntry.arguments?.getString("userType") ?: "user_home"
-            when (userType) {
-                "user_home" -> {
-                    navController.navigate("homePageEstudiantes") {
-                        popUpTo("userNavGraph/$userType") { inclusive = true }
-                    }
-                }
-                "tutor_home" -> {
-                    navController.navigate("homePageTutores") {
-                        popUpTo("userNavGraph/$userType") { inclusive = true }
-                    }
-                }
-                "admin_home" -> {
-                    navController.navigate(HomePageAdminDestination().route) {
-                        popUpTo("userNavGraph/$userType") { inclusive = true }
-                    }
-                }
-                else -> navController.navigate(LoginDestination.route) {
-                    popUpTo("userNavGraph/$userType") { inclusive = true }
-                }
-            }
+        // Pantallas de estudiantes
+        composable("homePageEstudiantes") {
+            HomePageEstudiantesNavigation(navController = navController)
         }
 
-        // Tutor Home Page
+        composable("perfil_estudiante") {
+            PerfilEstudianteNavigation(navController)
+        }
+
+        composable("solicitud_tutoria") {
+            SolicitudTutoriaNavigation(navController)
+        }
+
+        composable("progresoHorasBeca") {
+            ProgresoHorasBecaNavigation(navController, sessionManager)
+        }
+
+        // Pantallas de tutor
         composable("homePageTutores") {
             HomePageTutoresNavigation(navController)
         }
@@ -89,8 +93,6 @@ fun NavGraph(
                 DetallesTutoriaNavigation(navController, tutoriaJson)
             }
         }
-
-
 
         composable(
             route = DetallesTutoriaEstudiantesRoute,
@@ -110,26 +112,7 @@ fun NavGraph(
             }
         }
 
-
-        // Student Home Page
-        composable("homePageEstudiantes") {
-            HomePageEstudiantesNavigation(navController = navController)
-        }
-
-        // Perfil del Estudiante
-        composable("perfil_estudiante") {
-            PerfilEstudianteNavigation(navController)
-        }
-
-        // Solicitar Tutoría
-        composable("solicitud_tutoria") {
-            SolicitudTutoriaNavigation(navController)
-        }
-
-        composable("progresoHorasBeca") {
-            ProgresoHorasBecaNavigation(navController, sessionManager)
-        }
-
+        // Pantallas de administrador
         composable(HomePageAdminDestination().route) {
             HomePageAdminNavigation(navController)
         }

@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.tutoriasuvg.data.local.SessionManager
 import com.example.tutoriasuvg.navigation.NavGraph
 import com.example.tutoriasuvg.presentation.forgotpassword.ForgotPasswordDestination
+import com.example.tutoriasuvg.presentation.funcionalidades_admin.HomePageAdminDestination
 import com.example.tutoriasuvg.presentation.login.LoadingScreen
 import com.example.tutoriasuvg.presentation.login.LoginDestination
 import com.example.tutoriasuvg.presentation.signup.RegisterDestination
@@ -38,9 +39,9 @@ class MainActivity : ComponentActivity() {
                     if (isLoggedIn) {
                         isLoading = true
                         startDestination = when (userType) {
-                            "user" -> "userNavGraph/user_home"
-                            "tutor" -> "userNavGraph/tutor_home"
-                            "admin" -> "userNavGraph/admin_home"
+                            "student" -> "homePageEstudiantes"
+                            "tutor" -> "homePageTutores"
+                            "admin" -> HomePageAdminDestination().route
                             else -> LoginDestination.route
                         }
                     } else {
@@ -62,31 +63,19 @@ class MainActivity : ComponentActivity() {
                         startDestination = startDestination!!,
                         onNavigateToForgotPassword = { navController.navigate(ForgotPasswordDestination.route) },
                         onNavigateToRegister = { navController.navigate(RegisterDestination.route) },
-                        onLoginAsUser = {
+                        onLoginSuccess = { userType ->
                             coroutineScope.launch {
                                 isLoading = true
-                                sessionManager.saveLoginSession("user_email", "user")
-                                navController.navigate("userNavGraph/user_home") {
-                                    popUpTo(LoginDestination.route) { inclusive = true }
+                                sessionManager.saveLoginSession("user_email", userType)
+
+                                val destination = when (userType) {
+                                    "student" -> "homePageEstudiantes"
+                                    "tutor" -> "homePageTutores"
+                                    "admin" -> HomePageAdminDestination().route
+                                    else -> LoginDestination.route
                                 }
-                                isLoading = false
-                            }
-                        },
-                        onLoginAsTutor = {
-                            coroutineScope.launch {
-                                isLoading = true
-                                sessionManager.saveLoginSession("tutor_email", "tutor")
-                                navController.navigate("userNavGraph/tutor_home") {
-                                    popUpTo(LoginDestination.route) { inclusive = true }
-                                }
-                                isLoading = false
-                            }
-                        },
-                        onLoginAsAdmin = {
-                            coroutineScope.launch {
-                                isLoading = true
-                                sessionManager.saveLoginSession("admin_email", "admin")
-                                navController.navigate("userNavGraph/admin_home") {
+
+                                navController.navigate(destination) {
                                     popUpTo(LoginDestination.route) { inclusive = true }
                                 }
                                 isLoading = false

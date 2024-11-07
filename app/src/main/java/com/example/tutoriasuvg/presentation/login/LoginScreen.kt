@@ -1,64 +1,44 @@
 package com.example.tutoriasuvg.presentation.login
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Icon
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
-import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
-    onLoginAsUser: () -> Unit,
-    onLoginAsTutor: () -> Unit,
-    onLoginAsAdmin: () -> Unit,
+    onLoginSuccess: (String) -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
-    val email = viewModel.email.value
-    val showError = viewModel.showError.value
-    var emailError by remember { mutableStateOf(false) }
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(errorMessage) {
+        if (errorMessage.isNotEmpty()) {
+            snackbarHostState.showSnackbar(errorMessage)
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -76,118 +56,52 @@ fun LoginScreen(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.logo_uvg),
-                    contentDescription = "Logo en letras UVG",
-                    modifier = Modifier
-                        .size(150.dp)
-                        .padding(bottom = 24.dp)
+                    contentDescription = "Logo UVG",
+                    modifier = Modifier.size(150.dp).padding(bottom = 24.dp)
                 )
 
-                Text(
-                    text = "Email",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                )
-
+                // Campo de Email
                 OutlinedTextField(
                     value = email,
-                    onValueChange = {
-                        viewModel.onEmailChanged(it)
-                        emailError = it.isBlank()
-                    },
+                    onValueChange = { viewModel.onEmailChanged(it) },
                     label = { Text("Correo Institucional") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
                     singleLine = true,
-                    isError = emailError
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email)
                 )
 
-                if (emailError) {
-                    Text(
-                        text = "Por favor ingrese un correo electrónico",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                    )
-                }
+                // Campo de Contraseña
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { viewModel.onPasswordChanged(it) },
+                    label = { Text("Contraseña") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation()
+                )
 
+                // Botón de Iniciar Sesión
                 Button(
-                    onClick = {
-                        if (email.isNotBlank()) {
-                            onLoginAsUser()
-                        } else {
-                            emailError = true
-                        }
-                    },
+                    onClick = { viewModel.onLoginClicked(onLoginSuccess) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
                         .padding(top = 8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text(text = "Iniciar sesión como Usuario", fontSize = 16.sp)
+                    Text(text = if (isLoading) "Cargando..." else "Iniciar Sesión", fontSize = 16.sp)
                 }
 
-                Button(
-                    onClick = {
-                        if (email.isNotBlank()) {
-                            onLoginAsTutor()
-                        } else {
-                            emailError = true
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .padding(top = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text(text = "Iniciar sesión como Tutor", fontSize = 16.sp)
+                TextButton(onClick = onNavigateToRegister, modifier = Modifier.padding(top = 16.dp)) {
+                    Text("¿Aún no tienes cuenta? Regístrate acá")
                 }
 
-                Button(
-                    onClick = {
-                        if (email.isNotBlank()) {
-                            onLoginAsAdmin()
-                        } else {
-                            emailError = true
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .padding(top = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text(text = "Iniciar sesión como Administrador", fontSize = 16.sp)
-                }
-
-                TextButton(
-                    onClick = onNavigateToRegister,
-                    modifier = Modifier.padding(top = 16.dp)
-                ) {
-                    Text(
-                        text = "¿Aún no tienes cuenta? Regístrate acá",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                }
-
-                TextButton(
-                    onClick = onNavigateToForgotPassword,
-                    modifier = Modifier.padding(top = 16.dp)
-                ) {
-                    Text(
-                        text = "¿Olvidaste tu contraseña?",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+                TextButton(onClick = onNavigateToForgotPassword, modifier = Modifier.padding(top = 8.dp)) {
+                    Text("¿Olvidaste tu contraseña?")
                 }
             }
         }

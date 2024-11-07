@@ -12,17 +12,13 @@ data object LoginDestination {
 fun NavGraphBuilder.loginNavigation(
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
-    onLoginAsUser: () -> Unit,
-    onLoginAsTutor: () -> Unit,
-    onLoginAsAdmin: () -> Unit
+    onLoginSuccess: (String) -> Unit
 ) {
     composable(route = LoginDestination.route) {
         LoginScreen(
             onNavigateToRegister = onNavigateToRegister,
             onNavigateToForgotPassword = onNavigateToForgotPassword,
-            onLoginAsUser = onLoginAsUser,
-            onLoginAsTutor = onLoginAsTutor,
-            onLoginAsAdmin = onLoginAsAdmin
+            onLoginSuccess = onLoginSuccess
         )
     }
 }
