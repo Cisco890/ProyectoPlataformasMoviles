@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "974297136199",
+    "project_id": "tutoriasuvg-488c5",
+    "storage_bucket": "tutoriasuvg-488c5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:974297136199:android:6a35822fe19b39efdcc562",
+        "android_client_info": {
+          "package_name": "com.example.tutoriasuvg"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNwbpY_Q_rh1hmEggVYL-m03n5GP_BfWk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

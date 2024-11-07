@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -74,8 +75,8 @@ dependencies {
     implementation(libs.androidx.splashscreen)
     implementation(libs.androidx.room.runtime)
     kapt(libs.androidx.room.compiler)
-    // Esta librería es necesaria para poder usar corrutinas y flows con Room
     implementation(libs.androidx.room.ktx)
+    implementation(platform(libs.firebase.bom))
 
 
     testImplementation(libs.junit)
