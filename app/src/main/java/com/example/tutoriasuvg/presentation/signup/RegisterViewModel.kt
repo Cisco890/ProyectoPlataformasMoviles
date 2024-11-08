@@ -3,18 +3,16 @@ package com.example.tutoriasuvg.presentation.signup
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.tutoriasuvg.data.repository.FirebaseRegisterRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class RegisterViewModel(application: Application) : AndroidViewModel(application) {
+class RegisterViewModel(
+    application: Application,
+    private val registerRepository: FirebaseRegisterRepository
+) : AndroidViewModel(application) {
 
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-
-    // Campos comunes para todos los usuarios
     private val _name = MutableStateFlow("")
     val name: StateFlow<String> = _name
 
@@ -36,65 +34,54 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     private val _isRegistered = MutableStateFlow(false)
     val isRegistered: StateFlow<Boolean> = _isRegistered
 
-    // Métodos de actualización de estado
-    fun onNameChanged(newName: String) { _name.value = newName }
-    fun onEmailChanged(newEmail: String) { _email.value = newEmail }
-    fun onPasswordChanged(newPassword: String) { _password.value = newPassword }
-    fun onConfirmPasswordChanged(newConfirmPassword: String) { _confirmPassword.value = newConfirmPassword }
-    fun onTutorChecked(isChecked: Boolean) { _isTutor.value = isChecked }
+    // Funciones para actualizar los valores de cada campo
+    fun onNameChanged(newName: String) {
+        _name.value = newName
+    }
+
+    fun onEmailChanged(newEmail: String) {
+        _email.value = newEmail
+    }
+
+    fun onPasswordChanged(newPassword: String) {
+        _password.value = newPassword
+    }
+
+    fun onConfirmPasswordChanged(newConfirmPassword: String) {
+        _confirmPassword.value = newConfirmPassword
+    }
+
+    fun onTutorChecked(isChecked: Boolean) {
+        _isTutor.value = isChecked
+    }
 
     // Método para manejar el registro al hacer clic
     fun onRegisterClicked() {
-        saveCommonUserData()
-    }
-
-    // Guardar los datos comunes del usuario
-    private fun saveCommonUserData() {
-        when {
-            _password.value != _confirmPassword.value -> {
-                _errorMessage.value = "Las contraseñas no coinciden"
-            }
-            _email.value.isEmpty() || _name.value.isEmpty() || _password.value.isEmpty() -> {
-                _errorMessage.value = "Todos los campos son obligatorios"
-            }
-            else -> {
-                viewModelScope.launch {
-                    registerUserInFirebase()
-                }
-            }
+        if (_password.value != _confirmPassword.value) {
+            _errorMessage.value = "Las contraseñas no coinciden"
+            return
         }
-    }
 
-    // Autenticación en Firebase y almacenamiento de datos comunes en Firestore
-    private fun registerUserInFirebase() {
-        auth.createUserWithEmailAndPassword(_email.value, _password.value)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    saveUserCommonDataToFirestore()
-                } else {
-                    _errorMessage.value = "Error de autenticación: ${task.exception?.message}"
+        if (_name.value.isEmpty() || _email.value.isEmpty() || _password.value.isEmpty()) {
+            _errorMessage.value = "Todos los campos son obligatorios"
+            return
+        }
+
+        viewModelScope.launch {
+            val result = registerRepository.registerUser(
+                email = _email.value,
+                password = _password.value,
+                name = _name.value,
+                userType = if (_isTutor.value) "tutor" else "student"
+            )
+            result.fold(
+                onSuccess = {
+                    _isRegistered.value = true
+                },
+                onFailure = { exception ->
+                    _errorMessage.value = "Error al registrar el usuario: ${exception.message}"
                 }
-            }
-    }
-
-    // Guardar datos comunes en Firestore
-    private fun saveUserCommonDataToFirestore() {
-        val userId = auth.currentUser?.uid ?: return
-        val userType = if (_isTutor.value) "tutor" else "student"
-
-        val commonUserData = mapOf(
-            "name" to _name.value,
-            "email" to _email.value,
-            "userType" to userType
-        )
-
-        firestore.collection("users").document(userId).set(commonUserData)
-            .addOnSuccessListener {
-                _errorMessage.value = ""
-                _isRegistered.value = true
-            }
-            .addOnFailureListener { e ->
-                _errorMessage.value = "Error al registrar el usuario en Firestore: ${e.message}"
-            }
+            )
+        }
     }
 }

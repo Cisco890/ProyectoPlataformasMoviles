@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @Composable
@@ -32,10 +33,8 @@ fun RegisterStudentTutorScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // Verifica que todos los campos requeridos estén completos
     val isFormValid = year.isNotBlank() && hours.isNotBlank() && selectedCourses.values.any { it }
 
-    // Monitorea el estado de registro para redirigir a la pantalla de login
     LaunchedEffect(isRegistered) {
         if (isRegistered) {
             snackbarHostState.showSnackbar("Registrado correctamente")
@@ -171,7 +170,14 @@ fun RegisterStudentTutorScreen(
                 Button(
                     onClick = {
                         if (isFormValid) {
-                            viewModel.registerTutor() // Llama a la función para registrar en Firestore
+                            val userId = FirebaseAuth.getInstance().currentUser?.uid
+                            if (userId != null) {
+                                viewModel.registerTutor(userId)
+                            } else {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar("Error: No se encontró el ID de usuario.")
+                                }
+                            }
                         } else {
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar("Por favor complete todos los campos")
@@ -190,6 +196,7 @@ fun RegisterStudentTutorScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
+
 
                 Button(
                     onClick = { onBackToLogin() },
