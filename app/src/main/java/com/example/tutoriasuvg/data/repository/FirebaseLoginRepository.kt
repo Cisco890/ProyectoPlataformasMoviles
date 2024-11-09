@@ -44,4 +44,26 @@ class FirebaseLoginRepository(
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
     }
+
+    suspend fun getUserData(userId: String): Result<Map<String, Any>> {
+        return try {
+            val document = firestore.collection("users").document(userId).get().await()
+            if (document.exists()) {
+                Result.success(document.data ?: emptyMap())
+            } else {
+                Result.failure(Exception("Usuario no encontrado"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun updateUserType(userId: String, userType: String): Result<Unit> {
+        return try {
+            firestore.collection("users").document(userId).update("userType", userType).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

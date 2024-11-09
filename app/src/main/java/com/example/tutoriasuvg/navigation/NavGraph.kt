@@ -19,6 +19,8 @@ import com.example.tutoriasuvg.presentation.signup.registerTutorNavigation
 import kotlinx.serialization.json.Json
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
+
 
 @Composable
 fun NavGraph(
@@ -28,7 +30,8 @@ fun NavGraph(
     onNavigateToForgotPassword: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onLoginSuccess: (String) -> Unit,
-    loginViewModelFactory: LoginViewModelFactory // Asegúrate de que `loginViewModelFactory` se pase aquí.
+    loginViewModelFactory: LoginViewModelFactory,
+    loginRepository: FirebaseLoginRepository
 ) {
     NavHost(
         navController = navController,
@@ -77,7 +80,7 @@ fun NavGraph(
         }
 
         composable("perfil_estudiante") {
-            PerfilEstudianteNavigation(navController)
+            PerfilEstudianteNavigation(navController, loginRepository)
         }
 
         composable("solicitud_tutoria") {
@@ -85,7 +88,7 @@ fun NavGraph(
         }
 
         composable("progresoHorasBeca") {
-            ProgresoHorasBecaNavigation(navController, sessionManager)
+            ProgresoHorasBecaNavigation(navController, sessionManager, loginRepository)
         }
 
         // Pantallas de tutor

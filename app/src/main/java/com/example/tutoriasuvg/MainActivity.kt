@@ -90,7 +90,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         },
-                        loginViewModelFactory = loginViewModelFactory
+                        loginViewModelFactory = loginViewModelFactory,
+                        loginRepository = loginRepository
                     )
                 }
             }

@@ -8,8 +8,12 @@ import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
 @Composable
 fun PerfilEstudianteNavigation(
     navController: NavController,
-    viewModel: PerfilEstudianteViewModel = viewModel(factory = PerfilEstudianteViewModelFactory(FirebaseLoginRepository()))
+    loginRepository: FirebaseLoginRepository
 ) {
+    val viewModel: PerfilEstudianteViewModel = viewModel(
+        factory = PerfilEstudianteViewModelFactory(loginRepository)
+    )
+
     PerfilEstudianteScreen(
         onBackClick = { navController.popBackStack() },
         onLogoutClick = {
