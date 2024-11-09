@@ -55,7 +55,6 @@ fun ProgresoHorasBeca(
         }
     ) { paddingValues ->
         if (isLoading) {
-            // Pantalla de carga mientras se obtienen los datos
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -65,7 +64,6 @@ fun ProgresoHorasBeca(
                 CircularProgressIndicator(color = Color(0xFF007F39))
             }
         } else {
-            // Contenido del perfil
             Column(
                 modifier = Modifier
                     .fillMaxSize()
