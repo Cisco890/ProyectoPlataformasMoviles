@@ -12,6 +12,7 @@ import com.example.tutoriasuvg.presentation.forgotpassword.ForgotPasswordDestina
 import com.example.tutoriasuvg.presentation.funcionalidades_admin.HomePageAdminDestination
 import com.example.tutoriasuvg.presentation.login.LoadingScreen
 import com.example.tutoriasuvg.presentation.login.LoginDestination
+import com.example.tutoriasuvg.presentation.login.LoginViewModelFactory
 import com.example.tutoriasuvg.presentation.signup.RegisterDestination
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import kotlinx.coroutines.launch
@@ -25,7 +26,10 @@ class MainActivity : ComponentActivity() {
             TutoriasUVGTheme {
                 val navController = rememberNavController()
                 val sessionManager = remember { SessionManager(this) }
-                val loginRepository = FirebaseLoginRepository() // Instancia del repositorio de login
+                val loginRepository = FirebaseLoginRepository()
+
+                // Crear LoginViewModelFactory con los parámetros requeridos
+                val loginViewModelFactory = LoginViewModelFactory(application, loginRepository)
 
                 var isLoading by remember { mutableStateOf(true) }
                 var startDestination by remember { mutableStateOf(LoginDestination.route) }
@@ -73,7 +77,7 @@ class MainActivity : ComponentActivity() {
                             coroutineScope.launch {
                                 val userId = loginRepository.getCurrentUserId() ?: return@launch
 
-                                sessionManager.saveUserType(userType, loginRepository.getCurrentUserId().toString())
+                                sessionManager.saveUserType(userType, userId)
 
                                 val destination = when (userType) {
                                     "student" -> "homePageEstudiantes"
@@ -86,7 +90,8 @@ class MainActivity : ComponentActivity() {
                                     popUpTo(LoginDestination.route) { inclusive = true }
                                 }
                             }
-                        }
+                        },
+                        loginViewModelFactory = loginViewModelFactory  // Pasar loginViewModelFactory aquí
                     )
                 }
             }

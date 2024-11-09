@@ -21,7 +21,8 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
     onLoginSuccess: (String) -> Unit,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = viewModel(),
+    loginViewModel: LoginViewModel
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()

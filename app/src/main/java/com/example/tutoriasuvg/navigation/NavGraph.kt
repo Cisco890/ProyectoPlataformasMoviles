@@ -12,8 +12,8 @@ import com.example.tutoriasuvg.presentation.funcionalidades_admin.*
 import com.example.tutoriasuvg.presentation.funcionalidades_estudiantes.*
 import com.example.tutoriasuvg.presentation.funcionalidades_tutores.*
 import com.example.tutoriasuvg.presentation.login.LoginDestination
+import com.example.tutoriasuvg.presentation.login.LoginViewModelFactory
 import com.example.tutoriasuvg.presentation.login.loginNavigation
-import com.example.tutoriasuvg.presentation.signup.RegisterDestination
 import com.example.tutoriasuvg.presentation.signup.registerNavigation
 import com.example.tutoriasuvg.presentation.signup.registerTutorNavigation
 import kotlinx.serialization.json.Json
@@ -27,7 +27,8 @@ fun NavGraph(
     sessionManager: SessionManager,
     onNavigateToForgotPassword: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    onLoginSuccess: (String) -> Unit
+    onLoginSuccess: (String) -> Unit,
+    loginViewModelFactory: LoginViewModelFactory // Asegúrate de que `loginViewModelFactory` se pase aquí.
 ) {
     NavHost(
         navController = navController,
@@ -35,6 +36,7 @@ fun NavGraph(
     ) {
         // Navegación de Login
         loginNavigation(
+            loginViewModelFactory = loginViewModelFactory,
             onNavigateToRegister = onNavigateToRegister,
             onNavigateToForgotPassword = onNavigateToForgotPassword,
             onLoginSuccess = { userType ->
@@ -133,5 +135,3 @@ fun NavGraph(
         }
     }
 }
-
-
