@@ -15,15 +15,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
+import com.example.tutoriasuvg.data.repository.FirebaseRegisterRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterStudentTutorScreen(
     onBackToLogin: () -> Unit,
-    viewModel: RegisterTutorViewModel = viewModel()
+    registerRepository: FirebaseRegisterRepository,
+    viewModel: RegisterTutorViewModel = viewModel(factory = RegisterTutorViewModelFactory(registerRepository))
 ) {
-    val year by viewModel.year.collectAsState()
     val hours by viewModel.hours.collectAsState()
     val selectedCourses by viewModel.selectedCourses.collectAsState()
     val courses = viewModel.courses
@@ -33,7 +34,7 @@ fun RegisterStudentTutorScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    val isFormValid = year.isNotBlank() && hours.isNotBlank() && selectedCourses.values.any { it }
+    val isFormValid = hours.isNotBlank() && selectedCourses.values.any { it }
 
     LaunchedEffect(isRegistered) {
         if (isRegistered) {
@@ -78,24 +79,6 @@ fun RegisterStudentTutorScreen(
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 24.dp)
-                )
-
-                OutlinedTextField(
-                    value = year,
-                    onValueChange = { viewModel.onYearChanged(it) },
-                    label = { Text("Año estudiantil") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    singleLine = true,
-                    trailingIcon = {
-                        IconButton(onClick = { viewModel.onYearChanged("") }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Limpiar año"
-                            )
-                        }
-                    }
                 )
 
                 Text(
@@ -196,7 +179,6 @@ fun RegisterStudentTutorScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
-
 
                 Button(
                     onClick = { onBackToLogin() },

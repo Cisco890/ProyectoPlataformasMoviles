@@ -1,5 +1,6 @@
 package com.example.tutoriasuvg.presentation.signup
 
+import android.app.Application
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,12 +13,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.tutoriasuvg.R
+import com.example.tutoriasuvg.data.repository.FirebaseRegisterRepository
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -25,12 +28,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun RegisterScreen(
     onBackToLogin: () -> Unit,
     onNavigateToRegisterTutor: () -> Unit,
-    viewModel: RegisterViewModel = viewModel()
+    registerRepository: FirebaseRegisterRepository
 ) {
+    val application = LocalContext.current.applicationContext as Application
+
+    val viewModel: RegisterViewModel = viewModel(
+        factory = RegisterViewModelFactory(application, registerRepository)
+    )
+
     val name by viewModel.name.collectAsState()
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val confirmPassword by viewModel.confirmPassword.collectAsState()
+    val carnet by viewModel.carnet.collectAsState()
+    val year by viewModel.year.collectAsState()
     val isTutor by viewModel.isTutor.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isRegistered by viewModel.isRegistered.collectAsState()
@@ -41,7 +52,7 @@ fun RegisterScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
-    val isFormValid = name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
+    val isFormValid = name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank() && carnet.isNotBlank() && year.isNotBlank()
     val buttonText = if (isTutor) "Continuar" else "Registrarse"
 
     Scaffold(
@@ -119,6 +130,26 @@ fun RegisterScreen(
                 )
 
                 OutlinedTextField(
+                    value = carnet,
+                    onValueChange = { viewModel.onCarnetChanged(it) },
+                    label = { Text("Carnet") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    value = year,
+                    onValueChange = { viewModel.onYearChanged(it) },
+                    label = { Text("Año de Estudio") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    singleLine = true
+                )
+
+                OutlinedTextField(
                     value = password,
                     onValueChange = { viewModel.onPasswordChanged(it) },
                     label = { Text("Contraseña") },
@@ -156,6 +187,15 @@ fun RegisterScreen(
                     }
                 )
 
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -173,19 +213,10 @@ fun RegisterScreen(
                     )
                 }
 
-                if (errorMessage.isNotEmpty()) {
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-
                 Button(
                     onClick = {
                         if (isFormValid) {
-                            viewModel.onRegisterClicked() // Llama al método de registro
+                            viewModel.onRegisterClicked()
                         } else {
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar("Por favor complete todos los campos")
@@ -210,9 +241,9 @@ fun RegisterScreen(
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar("Registrado correctamente")
                             if (isTutor) {
-                                onNavigateToRegisterTutor() // Navega a la siguiente pantalla solo si es tutor
+                                onNavigateToRegisterTutor()
                             } else {
-                                onBackToLogin() // Navega al login si no es tutor
+                                onBackToLogin()
                             }
                         }
                     }

@@ -3,6 +3,7 @@ package com.example.tutoriasuvg.presentation.signup
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavController
 import androidx.navigation.compose.composable
+import com.example.tutoriasuvg.data.repository.FirebaseRegisterRepository
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,7 +12,8 @@ data object RegisterTutorDestination {
 }
 
 fun NavGraphBuilder.registerTutorNavigation(
-    navController: NavController
+    navController: NavController,
+    registerRepository: FirebaseRegisterRepository
 ) {
     composable(route = RegisterTutorDestination.route) {
         RegisterStudentTutorScreen(
@@ -20,7 +22,8 @@ fun NavGraphBuilder.registerTutorNavigation(
                     popUpTo(0)
                     launchSingleTop = true
                 }
-            }
+            },
+            registerRepository = registerRepository
         )
     }
 }

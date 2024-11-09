@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.tutoriasuvg.data.local.SessionManager
+import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
+import com.example.tutoriasuvg.data.repository.FirebaseRegisterRepository
 import com.example.tutoriasuvg.presentation.forgotpassword.forgotPasswordNavigation
 import com.example.tutoriasuvg.presentation.funcionalidades_admin.*
 import com.example.tutoriasuvg.presentation.funcionalidades_estudiantes.*
@@ -19,8 +21,6 @@ import com.example.tutoriasuvg.presentation.signup.registerTutorNavigation
 import kotlinx.serialization.json.Json
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
-
 
 @Composable
 fun NavGraph(
@@ -31,7 +31,8 @@ fun NavGraph(
     onNavigateToRegister: () -> Unit,
     onLoginSuccess: (String) -> Unit,
     loginViewModelFactory: LoginViewModelFactory,
-    loginRepository: FirebaseLoginRepository
+    loginRepository: FirebaseLoginRepository,
+    registerRepository: FirebaseRegisterRepository
 ) {
     NavHost(
         navController = navController,
@@ -66,11 +67,15 @@ fun NavGraph(
                     launchSingleTop = true
                 }
             },
-            onNavigateToRegisterTutor = { navController.navigate("register_tutor_screen") }
+            onNavigateToRegisterTutor = { navController.navigate("register_tutor_screen") },
+            registerRepository = registerRepository // Se pasa registerRepository a registerNavigation
         )
 
-        // Llamada corregida para `registerTutorNavigation`
-        registerTutorNavigation(navController = navController)
+        // Navegación de Registro de Tutoría
+        registerTutorNavigation(
+            navController = navController,
+            registerRepository = registerRepository
+        )
 
         forgotPasswordNavigation(onBackToLogin = { navController.popBackStack() })
 

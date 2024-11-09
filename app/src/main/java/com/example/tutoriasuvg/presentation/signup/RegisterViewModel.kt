@@ -25,6 +25,12 @@ class RegisterViewModel(
     private val _confirmPassword = MutableStateFlow("")
     val confirmPassword: StateFlow<String> = _confirmPassword
 
+    private val _carnet = MutableStateFlow("")
+    val carnet: StateFlow<String> = _carnet
+
+    private val _year = MutableStateFlow("")
+    val year: StateFlow<String> = _year
+
     private val _isTutor = MutableStateFlow(false)
     val isTutor: StateFlow<Boolean> = _isTutor
 
@@ -34,7 +40,7 @@ class RegisterViewModel(
     private val _isRegistered = MutableStateFlow(false)
     val isRegistered: StateFlow<Boolean> = _isRegistered
 
-    // Funciones para actualizar los valores de cada campo
+    // Functions to update each field
     fun onNameChanged(newName: String) {
         _name.value = newName
     }
@@ -51,18 +57,25 @@ class RegisterViewModel(
         _confirmPassword.value = newConfirmPassword
     }
 
+    fun onCarnetChanged(newCarnet: String) {
+        _carnet.value = newCarnet
+    }
+
+    fun onYearChanged(newYear: String) {
+        _year.value = newYear
+    }
+
     fun onTutorChecked(isChecked: Boolean) {
         _isTutor.value = isChecked
     }
 
-    // Método para manejar el registro al hacer clic
     fun onRegisterClicked() {
         if (_password.value != _confirmPassword.value) {
             _errorMessage.value = "Las contraseñas no coinciden"
             return
         }
 
-        if (_name.value.isEmpty() || _email.value.isEmpty() || _password.value.isEmpty()) {
+        if (_name.value.isEmpty() || _email.value.isEmpty() || _password.value.isEmpty() || _carnet.value.isEmpty() || _year.value.isEmpty()) {
             _errorMessage.value = "Todos los campos son obligatorios"
             return
         }
@@ -72,7 +85,9 @@ class RegisterViewModel(
                 email = _email.value,
                 password = _password.value,
                 name = _name.value,
-                userType = if (_isTutor.value) "tutor" else "student"
+                userType = if (_isTutor.value) "tutor" else "student",
+                carnet = _carnet.value,
+                year = _year.value
             )
             result.fold(
                 onSuccess = {

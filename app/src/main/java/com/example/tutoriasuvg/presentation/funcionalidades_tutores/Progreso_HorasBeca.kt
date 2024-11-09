@@ -155,12 +155,3 @@ fun CircularProgressBar(
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun ProgresoHorasBecaPreview() {
-//    TutoriasUVGTheme {
-//        ProgresoHorasBeca(
-//            onBackClick = {/**/}
-//        )
-//    }
-//}

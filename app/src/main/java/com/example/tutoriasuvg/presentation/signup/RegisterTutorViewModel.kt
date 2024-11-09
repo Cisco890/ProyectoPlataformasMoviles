@@ -23,9 +23,6 @@ class RegisterTutorViewModel(
         "Programación de Aplicaciones Móviles"
     )
 
-    private val _year = MutableStateFlow("")
-    val year: StateFlow<String> = _year
-
     private val _hours = MutableStateFlow("")
     val hours: StateFlow<String> = _hours
 
@@ -38,10 +35,6 @@ class RegisterTutorViewModel(
     private val _isRegistered = MutableStateFlow(false)
     val isRegistered: StateFlow<Boolean> = _isRegistered
 
-    fun onYearChanged(newYear: String) {
-        _year.value = newYear
-    }
-
     fun onHoursChanged(newHours: String) {
         _hours.value = newHours
     }
@@ -52,13 +45,24 @@ class RegisterTutorViewModel(
         _selectedCourses.value = updatedCourses
     }
 
+    private fun isFormValid(): Boolean {
+        return _hours.value.isNotEmpty() && _selectedCourses.value.any { it.value }
+    }
+
     fun registerTutor(userId: String) {
+        if (!isFormValid()) {
+            _errorMessage.value = "Por favor completa todos los campos requeridos."
+            return
+        }
+
         val selectedCoursesList = _selectedCourses.value.filterValues { it }.keys.toList()
+
         viewModelScope.launch {
-            val result = registerRepository.registerTutorData(userId, _year.value, _hours.value, selectedCoursesList)
+            val result = registerRepository.registerTutorData(userId, _hours.value, selectedCoursesList)
             result.fold(
                 onSuccess = {
                     _isRegistered.value = true
+                    _errorMessage.value = ""
                 },
                 onFailure = { exception ->
                     _errorMessage.value = "Error al registrar el tutor: ${exception.message}"

@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.navigation.compose.rememberNavController
 import com.example.tutoriasuvg.data.local.SessionManager
 import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
+import com.example.tutoriasuvg.data.repository.FirebaseRegisterRepository
 import com.example.tutoriasuvg.navigation.NavGraph
 import com.example.tutoriasuvg.presentation.forgotpassword.ForgotPasswordDestination
 import com.example.tutoriasuvg.presentation.funcionalidades_admin.HomePageAdminDestination
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val sessionManager = remember { SessionManager(this) }
                 val loginRepository = FirebaseLoginRepository()
+                val registerRepository = FirebaseRegisterRepository() // Initialización de registerRepository
 
                 val loginViewModelFactory = LoginViewModelFactory(application, loginRepository)
 
@@ -91,7 +93,8 @@ class MainActivity : ComponentActivity() {
                             }
                         },
                         loginViewModelFactory = loginViewModelFactory,
-                        loginRepository = loginRepository
+                        loginRepository = loginRepository,
+                        registerRepository = registerRepository // Se pasa registerRepository
                     )
                 }
             }
