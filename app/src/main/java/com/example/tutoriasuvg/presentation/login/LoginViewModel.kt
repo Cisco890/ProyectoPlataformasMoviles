@@ -3,6 +3,7 @@ package com.example.tutoriasuvg.presentation.login
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tutoriasuvg.data.local.SessionManager
 import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,7 +11,8 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel(
     application: Application,
-    private val loginRepository: FirebaseLoginRepository
+    private val loginRepository: FirebaseLoginRepository,
+    private val sessionManager: SessionManager
 ) : AndroidViewModel(application) {
 
     private val _email = MutableStateFlow("")
@@ -47,7 +49,7 @@ class LoginViewModel(
             _isLoading.value = false
             loginResult.fold(
                 onSuccess = { userId ->
-                    getUserTypeAndNavigate(userId, onLoginSuccess)
+                    saveSession(userId, onLoginSuccess)
                 },
                 onFailure = { exception ->
                     _errorMessage.value = "Error al iniciar sesión: ${exception.message}"
@@ -56,13 +58,12 @@ class LoginViewModel(
         }
     }
 
-    private fun getUserTypeAndNavigate(userId: String, onLoginSuccess: (String) -> Unit) {
+    private fun saveSession(userId: String, onLoginSuccess: (String) -> Unit) {
         viewModelScope.launch {
-            _isLoading.value = true
             val userTypeResult = loginRepository.getUserType(userId)
-            _isLoading.value = false
             userTypeResult.fold(
                 onSuccess = { userType ->
+                    sessionManager.saveUserSession(userType, _email.value, identifier = userId, isUsingCarnet = true)
                     onLoginSuccess(userType)
                 },
                 onFailure = { exception ->

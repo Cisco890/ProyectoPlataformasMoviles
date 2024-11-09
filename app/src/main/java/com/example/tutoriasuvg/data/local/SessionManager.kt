@@ -41,12 +41,18 @@ class SessionManager(private val context: Context) {
     }
 
     suspend fun clearSession() {
-        auth.signOut() // Cierra sesión en FirebaseAuth
+        auth.signOut()
         context.dataStore.edit { preferences ->
             preferences.clear()
             Log.d(TAG, "Session cleared from DataStore and FirebaseAuth.")
+
+            Log.d(TAG, "userType después de clear: ${preferences[USER_TYPE_KEY]}")
+            Log.d(TAG, "userEmail después de clear: ${preferences[USER_EMAIL_KEY]}")
+            Log.d(TAG, "userIdentifier después de clear: ${preferences[USER_IDENTIFIER_KEY]}")
+            Log.d(TAG, "isUsingCarnet después de clear: ${preferences[IS_USING_CARNET_KEY]}")
         }
     }
+
 
     fun isUserLoggedIn(): Boolean {
         val loggedIn = auth.currentUser != null
