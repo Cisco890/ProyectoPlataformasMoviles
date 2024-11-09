@@ -3,20 +3,24 @@ package com.example.tutoriasuvg.presentation.funcionalidades_estudiantes
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
 
 @Composable
 fun PerfilEstudianteNavigation(
     navController: NavController,
-    viewModel: PerfilEstudianteViewModel = viewModel() // ViewModel instance for PerfilEstudianteScreen
+    viewModel: PerfilEstudianteViewModel = viewModel(factory = PerfilEstudianteViewModelFactory(FirebaseLoginRepository()))
 ) {
     PerfilEstudianteScreen(
-        onBackClick = { navController.popBackStack() }, // Handle back navigation
-        onLogoutClick = { navController.navigate("register_screen") { // Navigate to LoginScreen
-            popUpTo("perfil") { inclusive = true } // Remove PerfilEstudianteScreen from back stack
-        }},
+        onBackClick = { navController.popBackStack() },
+        onLogoutClick = {
+            viewModel.logout()
+            navController.navigate("login_screen") {
+                popUpTo("perfil") { inclusive = true }
+            }
+        },
         onBecomeTutorClick = {
             viewModel.volvermeTutor()
-            navController.navigate("register_tutor_screen") // Navigate to RegisterTutorScreen
+            navController.navigate("register_tutor_screen")
         },
         viewModel = viewModel
     )

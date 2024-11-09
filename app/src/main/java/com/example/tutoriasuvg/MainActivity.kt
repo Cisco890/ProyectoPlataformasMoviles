@@ -28,7 +28,6 @@ class MainActivity : ComponentActivity() {
                 val sessionManager = remember { SessionManager(this) }
                 val loginRepository = FirebaseLoginRepository()
 
-                // Crear LoginViewModelFactory con los parámetros requeridos
                 val loginViewModelFactory = LoginViewModelFactory(application, loginRepository)
 
                 var isLoading by remember { mutableStateOf(true) }
@@ -91,7 +90,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         },
-                        loginViewModelFactory = loginViewModelFactory  // Pasar loginViewModelFactory aquí
+                        loginViewModelFactory = loginViewModelFactory
                     )
                 }
             }

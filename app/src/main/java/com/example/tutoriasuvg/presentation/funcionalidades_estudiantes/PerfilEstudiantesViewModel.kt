@@ -1,6 +1,7 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_estudiantes
 
 import androidx.lifecycle.ViewModel
+import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -11,9 +12,10 @@ data class Estudiante(
     val anio: String
 )
 
-class PerfilEstudianteViewModel : ViewModel() {
+class PerfilEstudianteViewModel(
+    private val loginRepository: FirebaseLoginRepository
+) : ViewModel() {
 
-    // StateFlow to hold the student profile data
     private val _estudiante = MutableStateFlow(
         Estudiante(
             nombre = "Nombre del Estudiante",
@@ -23,12 +25,14 @@ class PerfilEstudianteViewModel : ViewModel() {
     )
     val estudiante: StateFlow<Estudiante> = _estudiante
 
-    // StateFlow to track if the student wants to become a tutor
     private val _isTutor = MutableStateFlow(false)
     val isTutor: StateFlow<Boolean> = _isTutor
 
-    // Function to handle "Volverme Tutor" action
     fun volvermeTutor() {
         _isTutor.update { true }
+    }
+
+    fun logout() {
+        loginRepository.logout()
     }
 }

@@ -1,6 +1,5 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_estudiantes
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tutoriasuvg.R
+import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 @Composable
@@ -131,12 +131,15 @@ fun PerfilAppBar(onBackClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun PerfilEstudianteScreenPreview() {
+    val loginRepository = FirebaseLoginRepository()
+
     TutoriasUVGTheme {
         PerfilEstudianteScreen(
             onBackClick = {},
             onLogoutClick = {},
             onBecomeTutorClick = {},
-            viewModel = PerfilEstudianteViewModel()
+            viewModel = PerfilEstudianteViewModel(loginRepository) // Pasa loginRepository aquí
         )
     }
 }
+
