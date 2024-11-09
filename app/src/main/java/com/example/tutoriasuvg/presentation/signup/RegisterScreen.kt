@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
@@ -31,7 +32,6 @@ fun RegisterScreen(
     registerRepository: FirebaseRegisterRepository
 ) {
     val application = LocalContext.current.applicationContext as Application
-
     val viewModel: RegisterViewModel = viewModel(
         factory = RegisterViewModelFactory(application, registerRepository)
     )
@@ -71,197 +71,207 @@ fun RegisterScreen(
                 .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .padding(16.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo_uvg),
-                    contentDescription = "Logo en letras UVG",
-                    modifier = Modifier
-                        .size(150.dp)
-                        .padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "Registro",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 24.dp)
-                )
+                item {
+                    Image(
+                        painter = painterResource(id = R.drawable.logo_uvg),
+                        contentDescription = "Logo en letras UVG",
+                        modifier = Modifier
+                            .size(150.dp)
+                            .padding(bottom = 8.dp)
+                    )
+                }
 
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { viewModel.onNameChanged(it) },
-                    label = { Text("Nombre completo") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    singleLine = true,
-                    trailingIcon = {
-                        IconButton(onClick = { viewModel.onNameChanged("") }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Limpiar nombre"
-                            )
+                item {
+                    Text(
+                        text = "Registro",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    )
+                }
+
+                item {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { viewModel.onNameChanged(it) },
+                        label = { Text("Nombre completo") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        trailingIcon = {
+                            IconButton(onClick = { viewModel.onNameChanged("") }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Limpiar nombre"
+                                )
+                            }
                         }
-                    }
-                )
+                    )
+                }
 
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { viewModel.onEmailChanged(it) },
-                    label = { Text("Correo Institucional") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email),
-                    trailingIcon = {
-                        IconButton(onClick = { viewModel.onEmailChanged("") }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Limpiar correo"
-                            )
+                item {
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { viewModel.onEmailChanged(it) },
+                        label = { Text("Correo Institucional") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email),
+                        trailingIcon = {
+                            IconButton(onClick = { viewModel.onEmailChanged("") }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Limpiar correo"
+                                )
+                            }
                         }
-                    }
-                )
+                    )
+                }
 
-                OutlinedTextField(
-                    value = carnet,
-                    onValueChange = { viewModel.onCarnetChanged(it) },
-                    label = { Text("Carnet") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    singleLine = true
-                )
+                item {
+                    OutlinedTextField(
+                        value = carnet,
+                        onValueChange = { viewModel.onCarnetChanged(it) },
+                        label = { Text("Carnet") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
 
-                OutlinedTextField(
-                    value = year,
-                    onValueChange = { viewModel.onYearChanged(it) },
-                    label = { Text("Año de Estudio") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    singleLine = true
-                )
+                item {
+                    OutlinedTextField(
+                        value = year,
+                        onValueChange = { viewModel.onYearChanged(it) },
+                        label = { Text("Año de Estudio") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { viewModel.onPasswordChanged(it) },
-                    label = { Text("Contraseña") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    singleLine = true,
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
-                            )
+                item {
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { viewModel.onPasswordChanged(it) },
+                        label = { Text("Contraseña") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                    contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                                )
+                            }
                         }
-                    }
-                )
+                    )
+                }
 
-                OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = { viewModel.onConfirmPasswordChanged(it) },
-                    label = { Text("Verifique Contraseña") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    singleLine = true,
-                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                            Icon(
-                                imageVector = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (confirmPasswordVisible) "Ocultar verificación contraseña" else "Mostrar verificación contraseña"
-                            )
+                item {
+                    OutlinedTextField(
+                        value = confirmPassword,
+                        onValueChange = { viewModel.onConfirmPasswordChanged(it) },
+                        label = { Text("Verifique Contraseña") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                                Icon(
+                                    imageVector = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                    contentDescription = if (confirmPasswordVisible) "Ocultar verificación contraseña" else "Mostrar verificación contraseña"
+                                )
+                            }
                         }
-                    }
-                )
+                    )
+                }
 
                 if (errorMessage.isNotEmpty()) {
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = isTutor,
-                        onCheckedChange = { viewModel.onTutorChecked(it) },
-                        colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.primary)
-                    )
-                    Text(
-                        text = "¿Desea ser estudiante-tutor?",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        if (isFormValid) {
-                            viewModel.onRegisterClicked()
-                        } else {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Por favor complete todos los campos")
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    enabled = isFormValid,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text(
-                        text = buttonText,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-
-                LaunchedEffect(isRegistered) {
-                    if (isRegistered) {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Registrado correctamente")
-                            if (isTutor) {
-                                onNavigateToRegisterTutor()
-                            } else {
-                                onBackToLogin()
-                            }
-                        }
+                    item {
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
 
-                Button(
-                    onClick = onBackToLogin,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                ) {
-                    Text(
-                        text = "Volver al Login",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = isTutor,
+                            onCheckedChange = { viewModel.onTutorChecked(it) },
+                            colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.primary)
+                        )
+                        Text(
+                            text = "¿Desea ser estudiante-tutor?",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+
+                item {
+                    Button(
+                        onClick = {
+                            if (isFormValid) {
+                                viewModel.onRegisterClicked()
+                            } else {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar("Por favor complete todos los campos")
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        enabled = isFormValid,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text(
+                            text = buttonText,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+
+                item {
+                    Button(
+                        onClick = onBackToLogin,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                            .height(48.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                    ) {
+                        Text(
+                            text = "Volver al Login",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
+                }
+            }
+        }
+
+        LaunchedEffect(isRegistered) {
+            if (isRegistered) {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar("Registrado correctamente")
+                    if (isTutor) {
+                        onNavigateToRegisterTutor()
+                    } else {
+                        onBackToLogin()
+                    }
                 }
             }
         }

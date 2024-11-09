@@ -23,8 +23,8 @@ class RegisterTutorViewModel(
         "Programación de Aplicaciones Móviles"
     )
 
-    private val _hours = MutableStateFlow("")
-    val hours: StateFlow<String> = _hours
+    private val _hours = MutableStateFlow(0)
+    val hours: StateFlow<Int> = _hours
 
     private val _selectedCourses = MutableStateFlow<Map<String, Boolean>>(emptyMap())
     val selectedCourses: StateFlow<Map<String, Boolean>> = _selectedCourses
@@ -36,7 +36,7 @@ class RegisterTutorViewModel(
     val isRegistered: StateFlow<Boolean> = _isRegistered
 
     fun onHoursChanged(newHours: String) {
-        _hours.value = newHours
+        _hours.value = newHours.toIntOrNull() ?: 0
     }
 
     fun onCourseChecked(course: String, isChecked: Boolean) {
@@ -46,7 +46,7 @@ class RegisterTutorViewModel(
     }
 
     private fun isFormValid(): Boolean {
-        return _hours.value.isNotEmpty() && _selectedCourses.value.any { it.value }
+        return _hours.value > 0 && _selectedCourses.value.any { it.value }
     }
 
     fun registerTutor(userId: String) {

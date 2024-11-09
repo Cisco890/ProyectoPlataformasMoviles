@@ -70,8 +70,15 @@ class RegisterViewModel(
     }
 
     fun onRegisterClicked() {
+        _errorMessage.value = ""
+
         if (_password.value != _confirmPassword.value) {
             _errorMessage.value = "Las contraseñas no coinciden"
+            return
+        }
+
+        if (_password.value.length < 6) {
+            _errorMessage.value = "La contraseña debe tener al menos 6 caracteres"
             return
         }
 
@@ -92,6 +99,7 @@ class RegisterViewModel(
             result.fold(
                 onSuccess = {
                     _isRegistered.value = true
+                    _errorMessage.value = "Registro exitoso"
                 },
                 onFailure = { exception ->
                     _errorMessage.value = "Error al registrar el usuario: ${exception.message}"

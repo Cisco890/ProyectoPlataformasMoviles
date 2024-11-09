@@ -1,6 +1,6 @@
 package com.example.tutoriasuvg.navigation
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -21,6 +21,10 @@ import com.example.tutoriasuvg.presentation.signup.registerTutorNavigation
 import kotlinx.serialization.json.Json
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun NavGraph(
@@ -34,6 +38,56 @@ fun NavGraph(
     loginRepository: FirebaseLoginRepository,
     registerRepository: FirebaseRegisterRepository
 ) {
+    val scope = rememberCoroutineScope()
+
+    // Obtener el email del usuario autenticado
+    val email = FirebaseAuth.getInstance().currentUser?.email
+
+    // Estado de Carnet o Email
+    var identifier by remember { mutableStateOf<String?>(null) }
+    var isUsingCarnet by remember { mutableStateOf(true) } // Cambia a `false` si prefieres email
+
+    // Obtener el carnet o email del usuario si aún no se ha obtenido
+    LaunchedEffect(email) {
+        if (email != null && identifier == null) {
+            val firestore = FirebaseFirestore.getInstance()
+            try {
+                // Consulta Firestore para obtener el carnet en base al email
+                val querySnapshot = firestore.collection("users")
+                    .whereEqualTo("email", email)
+                    .get()
+                    .await()
+
+                if (!querySnapshot.isEmpty) {
+                    val document = querySnapshot.documents[0]
+                    identifier = document.getString("carnet") ?: email // Usa carnet si existe, si no usa email
+                    isUsingCarnet = document.contains("carnet") // Si el documento tiene carnet, usa carnet
+
+                    // Guardar en SessionManager
+                    sessionManager.saveUserSession(
+                        userType = document.getString("userType") ?: "unknown",
+                        email = email,
+                        identifier = identifier!!,
+                        isUsingCarnet = isUsingCarnet
+                    )
+                } else {
+                    identifier = email // En caso de no tener carnet, usamos el email
+                    isUsingCarnet = false
+                    sessionManager.saveUserSession(
+                        userType = "unknown",
+                        email = email,
+                        identifier = email,
+                        isUsingCarnet = false
+                    )
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                identifier = email // En caso de error, usa email
+                isUsingCarnet = false
+            }
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -68,7 +122,7 @@ fun NavGraph(
                 }
             },
             onNavigateToRegisterTutor = { navController.navigate("register_tutor_screen") },
-            registerRepository = registerRepository // Se pasa registerRepository a registerNavigation
+            registerRepository = registerRepository
         )
 
         // Navegación de Registro de Tutoría
@@ -92,8 +146,22 @@ fun NavGraph(
             SolicitudTutoriaNavigation(navController)
         }
 
+        // Pantalla de progreso de horas usando el identificador (carnet o email)
         composable("progresoHorasBeca") {
-            ProgresoHorasBecaNavigation(navController, sessionManager, loginRepository)
+            identifier?.let {
+                ProgresoHorasBecaNavigation(
+                    navController = navController,
+                    identifier = it,
+                    isUsingCarnet = isUsingCarnet,
+                    sessionManager = sessionManager,
+                    loginRepository = loginRepository
+                )
+            } ?: run {
+                navController.navigate(LoginDestination.route) {
+                    popUpTo(0)
+                    launchSingleTop = true
+                }
+            }
         }
 
         // Pantallas de tutor

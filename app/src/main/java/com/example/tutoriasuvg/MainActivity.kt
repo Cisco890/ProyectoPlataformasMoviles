@@ -28,16 +28,22 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val sessionManager = remember { SessionManager(this) }
                 val loginRepository = FirebaseLoginRepository()
-                val registerRepository = FirebaseRegisterRepository() // Initialización de registerRepository
-
+                val registerRepository = FirebaseRegisterRepository()
                 val loginViewModelFactory = LoginViewModelFactory(application, loginRepository)
 
                 var isLoading by remember { mutableStateOf(true) }
                 var startDestination by remember { mutableStateOf(LoginDestination.route) }
+                var identifier by remember { mutableStateOf<String?>(null) }
+                var isUsingCarnet by remember { mutableStateOf(true) }
+
                 val coroutineScope = rememberCoroutineScope()
 
                 LaunchedEffect(Unit) {
                     if (loginRepository.isUserLoggedIn()) {
+                        // Cargar los valores de la sesión desde SessionManager
+                        identifier = sessionManager.getUserIdentifierSync()
+                        isUsingCarnet = sessionManager.isUsingCarnetSync()
+
                         val userId = loginRepository.getCurrentUserId()
                         if (userId != null) {
                             try {
@@ -78,7 +84,8 @@ class MainActivity : ComponentActivity() {
                             coroutineScope.launch {
                                 val userId = loginRepository.getCurrentUserId() ?: return@launch
 
-                                sessionManager.saveUserType(userType, userId)
+                                // Guardar los datos en SessionManager después del login
+                                sessionManager.saveUserSession(userType, userId, identifier ?: "", isUsingCarnet)
 
                                 val destination = when (userType) {
                                     "student" -> "homePageEstudiantes"
@@ -94,7 +101,7 @@ class MainActivity : ComponentActivity() {
                         },
                         loginViewModelFactory = loginViewModelFactory,
                         loginRepository = loginRepository,
-                        registerRepository = registerRepository // Se pasa registerRepository
+                        registerRepository = registerRepository
                     )
                 }
             }
