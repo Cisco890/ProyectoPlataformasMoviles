@@ -25,7 +25,6 @@ fun ProgresoHorasBecaNavigation(
     }
 
     val viewModel: ProgresoHorasBecaViewModel = viewModel(factory = viewModelFactory)
-
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.isLoggingOut) {
@@ -39,6 +38,12 @@ fun ProgresoHorasBecaNavigation(
     ProgresoHorasBecaRoute(
         uiState = uiState,
         onBackClick = { navController.popBackStack() },
-        onLogoutClick = { viewModel.logout() }
+        onLogoutClick = {
+            try {
+                viewModel.logout()
+            } catch (e: Exception) {
+            }
+        }
     )
 }
+

@@ -71,9 +71,17 @@ class ProgresoHorasBecaViewModel(
 
     fun logout() {
         viewModelScope.launch {
-            loginRepository.logout()
-            sessionManager.clearSession()
-            _uiState.value = _uiState.value.copy(isLoggingOut = true)
+            try {
+                loginRepository.logout()
+                sessionManager.clearSession()
+                _uiState.value = _uiState.value.copy(isLoggingOut = true)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoggingOut = false,
+                    errorMessage = "Error al cerrar sesión: ${e.message}"
+                )
+            }
         }
     }
+
 }
