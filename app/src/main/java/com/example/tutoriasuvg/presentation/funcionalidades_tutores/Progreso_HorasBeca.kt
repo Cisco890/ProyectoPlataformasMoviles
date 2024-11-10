@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,30 +18,51 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProgresoHorasBeca(
-    viewModel: ProgresoHorasBecaViewModel,
+fun ProgresoHorasBecaRoute(
+    uiState: ProgresoHorasBecaUIState,
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
-    val isLoading = viewModel.isLoading.collectAsState().value
-    val nombreEstudiante = viewModel.nombreEstudiante.collectAsState().value
-    val carnetEstudiante = viewModel.carnetEstudiante.collectAsState().value
-    val anioEstudio = viewModel.anioEstudio.collectAsState().value
-    val horasCompletadas = viewModel.horasCompletadas.collectAsState().value
-    val totalHoras = viewModel.totalHoras.collectAsState().value
-    val porcentajeProgreso = viewModel.porcentajeProgreso.collectAsState().value
+    ProgresoHorasBecaScreen(
+        isLoading = uiState.isLoading,
+        nombreEstudiante = uiState.nombreEstudiante,
+        carnetEstudiante = uiState.carnetEstudiante,
+        anioEstudio = uiState.anioEstudio,
+        horasCompletadas = uiState.horasCompletadas,
+        totalHoras = uiState.totalHoras,
+        porcentajeProgreso = uiState.porcentajeProgreso,
+        onBackClick = onBackClick,
+        onLogoutClick = onLogoutClick
+    )
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProgresoHorasBecaScreen(
+    isLoading: Boolean,
+    nombreEstudiante: String,
+    carnetEstudiante: String,
+    anioEstudio: String,
+    horasCompletadas: Int,
+    totalHoras: Int,
+    porcentajeProgreso: Float,
+    onBackClick: () -> Unit,
+    onLogoutClick: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Perfil", color = Color.White) },
                 navigationIcon = {
-                    IconButton(onClick = { onBackClick() }) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Regresar",
@@ -111,7 +133,7 @@ fun ProgresoHorasBeca(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = { onLogoutClick() },
+                    onClick = onLogoutClick,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -158,3 +180,21 @@ fun CircularProgressBar(
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun ProgresoHorasBecaScreenPreview() {
+    ProgresoHorasBecaScreen(
+        isLoading = false,
+        nombreEstudiante = "Juan Pérez",
+        carnetEstudiante = "23123",
+        anioEstudio = "3",
+        horasCompletadas = 50,
+        totalHoras = 100,
+        porcentajeProgreso = 0.5f,
+        onBackClick = {},
+        onLogoutClick = {}
+    )
+}
+
+

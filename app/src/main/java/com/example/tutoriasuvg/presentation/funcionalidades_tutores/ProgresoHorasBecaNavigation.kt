@@ -1,69 +1,44 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_tutores
 
+import kotlinx.serialization.Serializable
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.tutoriasuvg.data.local.SessionManager
-import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
-import com.example.tutoriasuvg.presentation.login.LoadingScreen
-import kotlinx.coroutines.delay
+import com.example.tutoriasuvg.presentation.login.LoginDestination
+
+import kotlinx.serialization.json.Json
+
+@Serializable
+data class ProgresoHorasBecaArgs(
+    val identifier: String,
+    val isUsingCarnet: Boolean
+)
 
 @Composable
 fun ProgresoHorasBecaNavigation(
     navController: NavController,
-    identifier: String,
-    isUsingCarnet: Boolean,
-    sessionManager: SessionManager,
-    loginRepository: FirebaseLoginRepository
+    argsJson: String,
+    viewModelFactory: ProgresoHorasBecaViewModelFactory
 ) {
-    var isLoggingOut by remember { mutableStateOf(false) }
-    var showProgresoHorasBeca by remember { mutableStateOf(false) }
-
-    val viewModel: ProgresoHorasBecaViewModel = viewModel(
-        key = "ProgresoHorasBecaViewModel_$identifier",
-        factory = ProgresoHorasBecaViewModelFactory(identifier, isUsingCarnet)
-    )
-
-    val isLoading = viewModel.isLoading.collectAsState().value
-
-    LaunchedEffect(identifier, isUsingCarnet) {
-        viewModel.setIdentifier(identifier, isUsingCarnet)
+    val args: ProgresoHorasBecaArgs = remember {
+        Json.decodeFromString(argsJson)
     }
 
-    LaunchedEffect(isLoading) {
-        if (!isLoading) {
-            delay(500)
-            showProgresoHorasBeca = true
-        }
-    }
+    val viewModel: ProgresoHorasBecaViewModel = viewModel(factory = viewModelFactory)
 
-    if (isLoggingOut) {
-        LaunchedEffect(Unit) {
-            loginRepository.logout()
-            sessionManager.clearSession()
-            viewModel.clearData()
+    val uiState by viewModel.uiState.collectAsState()
 
-            navController.navigate("login_screen") {
+    LaunchedEffect(uiState.isLoggingOut) {
+        if (uiState.isLoggingOut) {
+            navController.navigate(LoginDestination.route) {
                 popUpTo(0) { inclusive = true }
             }
-            isLoggingOut = false
         }
     }
 
-    when {
-        isLoading -> {
-            LoadingScreen()
-        }
-        showProgresoHorasBeca -> {
-            ProgresoHorasBeca(
-                viewModel = viewModel,
-                onBackClick = {
-                    navController.popBackStack()
-                },
-                onLogoutClick = {
-                    isLoggingOut = true
-                }
-            )
-        }
-    }
+    ProgresoHorasBecaRoute(
+        uiState = uiState,
+        onBackClick = { navController.popBackStack() },
+        onLogoutClick = { viewModel.logout() }
+    )
 }

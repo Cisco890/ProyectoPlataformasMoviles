@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.encodeToString
 
 @Composable
 fun NavGraph(
@@ -40,19 +41,15 @@ fun NavGraph(
 ) {
     val scope = rememberCoroutineScope()
 
-    // Obtener el email del usuario autenticado
     val email = FirebaseAuth.getInstance().currentUser?.email
 
-    // Estado de Carnet o Email
     var identifier by remember { mutableStateOf<String?>(null) }
-    var isUsingCarnet by remember { mutableStateOf(true) } // Cambia a `false` si prefieres email
+    var isUsingCarnet by remember { mutableStateOf(true) }
 
-    // Obtener el carnet o email del usuario si aún no se ha obtenido
     LaunchedEffect(email) {
         if (email != null && identifier == null) {
             val firestore = FirebaseFirestore.getInstance()
             try {
-                // Consulta Firestore para obtener el carnet en base al email
                 val querySnapshot = firestore.collection("users")
                     .whereEqualTo("email", email)
                     .get()
@@ -60,10 +57,9 @@ fun NavGraph(
 
                 if (!querySnapshot.isEmpty) {
                     val document = querySnapshot.documents[0]
-                    identifier = document.getString("carnet") ?: email // Usa carnet si existe, si no usa email
-                    isUsingCarnet = document.contains("carnet") // Si el documento tiene carnet, usa carnet
+                    identifier = document.getString("carnet") ?: email
+                    isUsingCarnet = document.contains("carnet")
 
-                    // Guardar en SessionManager
                     sessionManager.saveUserSession(
                         userType = document.getString("userType") ?: "unknown",
                         email = email,
@@ -71,7 +67,7 @@ fun NavGraph(
                         isUsingCarnet = isUsingCarnet
                     )
                 } else {
-                    identifier = email // En caso de no tener carnet, usamos el email
+                    identifier = email
                     isUsingCarnet = false
                     sessionManager.saveUserSession(
                         userType = "unknown",
@@ -82,7 +78,7 @@ fun NavGraph(
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                identifier = email // En caso de error, usa email
+                identifier = email
                 isUsingCarnet = false
             }
         }
@@ -149,12 +145,21 @@ fun NavGraph(
         // Pantalla de progreso de horas usando el identificador (carnet o email)
         composable("progresoHorasBeca") {
             identifier?.let {
-                ProgresoHorasBecaNavigation(
-                    navController = navController,
-                    identifier = it,
-                    isUsingCarnet = isUsingCarnet,
+                // Crear los argumentos serializables en formato JSON
+                val args = ProgresoHorasBecaArgs(identifier = it, isUsingCarnet = isUsingCarnet)
+                val argsJson = Json.encodeToString(args)
+
+                // Crear el ViewModelFactory
+                val viewModelFactory = ProgresoHorasBecaViewModelFactory(
+                    args = args,
                     sessionManager = sessionManager,
                     loginRepository = loginRepository
+                )
+
+                ProgresoHorasBecaNavigation(
+                    navController = navController,
+                    argsJson = argsJson,
+                    viewModelFactory = viewModelFactory
                 )
             } ?: run {
                 navController.navigate(LoginDestination.route) {
