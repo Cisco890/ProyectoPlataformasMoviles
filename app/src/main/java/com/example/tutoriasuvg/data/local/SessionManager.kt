@@ -7,9 +7,11 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.flow.Flow
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
 
 private val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
@@ -29,73 +31,68 @@ class SessionManager(private val context: Context) {
     }
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
+    // Método para guardar la sesión del usuario en DataStore
     suspend fun saveUserSession(userType: String, email: String, identifier: String, isUsingCarnet: Boolean) {
+        Log.d(TAG, "Saving session: userType=$userType, email=$email, identifier=$identifier, isUsingCarnet=$isUsingCarnet")
         context.dataStore.edit { preferences ->
             preferences[USER_TYPE_KEY] = userType
             preferences[USER_EMAIL_KEY] = email
             preferences[USER_IDENTIFIER_KEY] = identifier
             preferences[IS_USING_CARNET_KEY] = isUsingCarnet
-            Log.d(TAG, "User session saved: userType=$userType, email=$email, identifier=$identifier, isUsingCarnet=$isUsingCarnet")
         }
     }
 
+
+    // Método para borrar la sesión del usuario en DataStore y cerrar sesión en FirebaseAuth
     suspend fun clearSession() {
         auth.signOut()
         context.dataStore.edit { preferences ->
             preferences.clear()
             Log.d(TAG, "Session cleared from DataStore and FirebaseAuth.")
-
-            Log.d(TAG, "userType después de clear: ${preferences[USER_TYPE_KEY]}")
-            Log.d(TAG, "userEmail después de clear: ${preferences[USER_EMAIL_KEY]}")
-            Log.d(TAG, "userIdentifier después de clear: ${preferences[USER_IDENTIFIER_KEY]}")
-            Log.d(TAG, "isUsingCarnet después de clear: ${preferences[IS_USING_CARNET_KEY]}")
         }
     }
 
-
+    // Verifica si el usuario está logueado en FirebaseAuth
     fun isUserLoggedIn(): Boolean {
         val loggedIn = auth.currentUser != null
         Log.d(TAG, "FirebaseAuth user logged in: $loggedIn")
         return loggedIn
     }
 
-    val userType: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[USER_TYPE_KEY] ?: DEFAULT_USER_TYPE
-    }
-
-    val userEmail: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[USER_EMAIL_KEY] ?: DEFAULT_EMAIL
-    }
-
-    val userIdentifier: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[USER_IDENTIFIER_KEY] ?: DEFAULT_IDENTIFIER
-    }
-
-    val isUsingCarnet: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[IS_USING_CARNET_KEY] ?: DEFAULT_IS_USING_CARNET
-    }
-
+    // Recupera el tipo de usuario de forma síncrona
     suspend fun getUserTypeSync(): String {
-        val type = userType.first()
+        val type = context.dataStore.data.map { preferences ->
+            preferences[USER_TYPE_KEY] ?: DEFAULT_USER_TYPE
+        }.first()
         Log.d(TAG, "Synchronously retrieved user type from DataStore: $type")
         return type
     }
 
+    // Recupera el email de usuario de forma síncrona
     suspend fun getUserEmailSync(): String {
-        val email = userEmail.first()
+        val email = context.dataStore.data.map { preferences ->
+            preferences[USER_EMAIL_KEY] ?: DEFAULT_EMAIL
+        }.first()
         Log.d(TAG, "Synchronously retrieved user email from DataStore: $email")
         return email
     }
 
+    // Recupera el identificador de usuario de forma síncrona
     suspend fun getUserIdentifierSync(): String {
-        val identifier = userIdentifier.first()
+        val identifier = context.dataStore.data.map { preferences ->
+            preferences[USER_IDENTIFIER_KEY] ?: DEFAULT_IDENTIFIER
+        }.first()
         Log.d(TAG, "Synchronously retrieved user identifier from DataStore: $identifier")
         return identifier
     }
 
+    // Recupera si el usuario está usando carnet de forma síncrona
     suspend fun isUsingCarnetSync(): Boolean {
-        val isCarnet = isUsingCarnet.first()
+        val isCarnet = context.dataStore.data.map { preferences ->
+            preferences[IS_USING_CARNET_KEY] ?: DEFAULT_IS_USING_CARNET
+        }.first()
         Log.d(TAG, "Synchronously retrieved isUsingCarnet from DataStore: $isCarnet")
         return isCarnet
     }

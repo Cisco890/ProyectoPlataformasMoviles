@@ -34,26 +34,25 @@ data class Solicitud(
     val diasPreferencia: String
 )
 
-@Serializable
-data class HomePageAdminDestination(val route: String = "homePageAdmin")
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePageAdmin(
     viewModel: HomePageAdminViewModel = viewModel(),
+    onProfileClick: () -> Unit,
     onVerProgresosClick: () -> Unit,
     onNotificacionesClick: () -> Unit
 ) {
     val solicitudes = viewModel.solicitudes.collectAsState().value
     Scaffold(
-        topBar = { AdminAppBar() },
-        bottomBar = { AdminBottomNavigationBar(
-            onVerProgresosClick = onVerProgresosClick,
-            onNotificacionesClick = onNotificacionesClick
-        ) }
+        topBar = { AdminAppBar(onProfileClick = onProfileClick) },
+        bottomBar = {
+            AdminBottomNavigationBar(
+                onVerProgresosClick = onVerProgresosClick,
+                onNotificacionesClick = onNotificacionesClick
+            )
+        }
     ) { paddingValues ->
         if (solicitudes.isEmpty()) {
-            // Mostrar mensaje cuando no hay solicitudes
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -67,7 +66,6 @@ fun HomePageAdmin(
                 )
             }
         } else {
-            // Mostrar la lista de solicitudes
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -126,7 +124,6 @@ fun CardSolicitud(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Información de la solicitud
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -206,7 +203,7 @@ fun AdminBottomNavigationBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminAppBar() {
+fun AdminAppBar(onProfileClick: () -> Unit) {
     TopAppBar(
         title = {
             Row(
@@ -223,14 +220,14 @@ fun AdminAppBar() {
             }
         },
         actions = {
-            Icon(
-                imageVector = Icons.Filled.AccountCircle,
-                contentDescription = "User Icon",
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(24.dp),
-                tint = Color.White
-            )
+            IconButton(onClick = onProfileClick) {
+                Icon(
+                    imageVector = Icons.Filled.AccountCircle,
+                    contentDescription = "User Icon",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.White
+                )
+            }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color(0xFF007F39)
@@ -263,8 +260,9 @@ fun HomePageAdminWithSolicitudesPreview() {
     TutoriasUVGTheme {
         HomePageAdmin(
             viewModel = mockViewModel,
-            onVerProgresosClick = {/**/},
-            onNotificacionesClick = {/**/}
+            onProfileClick = { /* Acción para el perfil */ },
+            onVerProgresosClick = { /**/ },
+            onNotificacionesClick = { /**/ }
         )
     }
 }
@@ -279,9 +277,9 @@ fun HomePageAdminSinSolicitudesPreview() {
     TutoriasUVGTheme {
         HomePageAdmin(
             viewModel = mockViewModel,
-            onVerProgresosClick = {/**/},
-            onNotificacionesClick = {/**/}
+            onProfileClick = { /* Acción para el perfil */ },
+            onVerProgresosClick = { /**/ },
+            onNotificacionesClick = { /**/ }
         )
     }
 }
-

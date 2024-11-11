@@ -23,9 +23,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class NotificacionesDestination(val route: String = "notificaciones")
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificacionesScreen(viewModel: NotificacionesViewModel = viewModel(), onBackClick: () -> Unit) {

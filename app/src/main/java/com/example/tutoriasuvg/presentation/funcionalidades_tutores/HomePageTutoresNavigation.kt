@@ -20,7 +20,7 @@ fun HomePageTutoresNavigation(navController: NavController) {
             navController.navigate("detalles_tutoria/$encodedTutoriaJson")
         },
         onProgresoClick = {
-            navController.navigate("progresoHorasBeca")
+            navController.navigate("perfil_tutor")
         }
     )
 }

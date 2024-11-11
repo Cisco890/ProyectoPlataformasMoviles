@@ -23,9 +23,6 @@ import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class VerProgresosDestination(val route: String = "verProgresos")
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VerProgresosScreen(viewModel: VerProgresosViewModel = viewModel(),onBackClick: () -> Unit) {

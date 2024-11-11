@@ -4,7 +4,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 
 class FirebaseRegisterRepository(
@@ -27,9 +26,11 @@ class FirebaseRegisterRepository(
         }
 
         return try {
+            // Crear usuario con email y contraseña
             auth.createUserWithEmailAndPassword(email, password).await()
             val userId = auth.currentUser?.uid ?: throw Exception("Error al obtener ID del usuario después de registrar")
 
+            // Guardar información básica del usuario
             val userData = mapOf(
                 "name" to name,
                 "email" to email,
@@ -38,7 +39,8 @@ class FirebaseRegisterRepository(
                 "year" to year
             )
 
-            firestore.collection("users").document(userId).set(userData, SetOptions.merge()).await()
+            // Registrar los datos básicos en Firestore
+            firestore.collection("users").document(userId).set(userData).await()
             Result.success(userId)
         } catch (e: FirebaseAuthException) {
             Result.failure(Exception("Error de autenticación: ${e.message}", e))
@@ -60,13 +62,13 @@ class FirebaseRegisterRepository(
         require(courses.isNotEmpty()) { "Debe proporcionar al menos un curso." }
 
         return try {
-            val tutorData = mapOf(
-                "hours" to hours,
-                "courses" to courses,
-                "userType" to "tutor"
-            )
-
-            firestore.collection("users").document(userId).set(tutorData, SetOptions.merge()).await()
+            firestore.collection("users").document(userId).update(
+                mapOf(
+                    "hours" to hours,
+                    "courses" to courses,
+                    "userType" to "tutor"
+                )
+            ).await()
             Result.success(Unit)
         } catch (e: FirebaseFirestoreException) {
             Result.failure(Exception("Error al guardar datos del tutor en Firestore: ${e.message}", e))

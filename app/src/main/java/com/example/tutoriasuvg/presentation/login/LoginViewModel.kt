@@ -1,6 +1,7 @@
 package com.example.tutoriasuvg.presentation.login
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tutoriasuvg.data.local.SessionManager
@@ -63,6 +64,7 @@ class LoginViewModel(
             val userTypeResult = loginRepository.getUserType(userId)
             userTypeResult.fold(
                 onSuccess = { userType ->
+                    Log.d("LoginViewModel", "Saving session with userType=$userType, email=${_email.value}, identifier=$userId, isUsingCarnet=true")
                     sessionManager.saveUserSession(userType, _email.value, identifier = userId, isUsingCarnet = true)
                     onLoginSuccess(userType)
                 },
@@ -72,4 +74,5 @@ class LoginViewModel(
             )
         }
     }
+
 }

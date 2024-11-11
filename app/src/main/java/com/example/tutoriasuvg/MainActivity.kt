@@ -16,9 +16,8 @@ import com.example.tutoriasuvg.presentation.login.LoginDestination
 import com.example.tutoriasuvg.presentation.login.LoginViewModelFactory
 import com.example.tutoriasuvg.presentation.signup.RegisterDestination
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
-import kotlinx.coroutines.launch
-
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,25 +34,17 @@ class MainActivity : ComponentActivity() {
                 var isLoading by remember { mutableStateOf(true) }
                 var startDestination by remember { mutableStateOf(LoginDestination.route) }
 
-                var identifier by remember { mutableStateOf<String?>(null) }
-                var isUsingCarnet by remember { mutableStateOf(true) }
-
-                val coroutineScope = rememberCoroutineScope()
-
                 LaunchedEffect(Unit) {
                     isLoading = true
 
                     if (loginRepository.isUserLoggedIn()) {
-                        identifier = sessionManager.getUserIdentifierSync()
-                        isUsingCarnet = sessionManager.isUsingCarnetSync()
                         val userId = loginRepository.getCurrentUserId()
-
                         userId?.let {
                             try {
                                 val userTypeResult = loginRepository.getUserType(userId)
                                 userTypeResult.fold(
                                     onSuccess = { userType ->
-                                        delay(5000) // Retraso de 500 ms
+                                        delay(500) // Retraso de 500 ms
                                         startDestination = when (userType) {
                                             "student" -> "homePageEstudiantes"
                                             "tutor" -> "homePageTutores"
@@ -83,23 +74,15 @@ class MainActivity : ComponentActivity() {
                         onNavigateToForgotPassword = { navController.navigate(ForgotPasswordDestination.route) },
                         onNavigateToRegister = { navController.navigate(RegisterDestination.route) },
                         onLoginSuccess = { userType ->
-                            coroutineScope.launch {
-                                val userId = loginRepository.getCurrentUserId() ?: return@launch
+                            val destination = when (userType) {
+                                "student" -> "homePageEstudiantes"
+                                "tutor" -> "homePageTutores"
+                                "admin" -> HomePageAdminDestination().route
+                                else -> LoginDestination.route
+                            }
 
-                                sessionManager.saveUserSession(userType, userId, identifier ?: "", isUsingCarnet)
-
-                                delay(5000)
-
-                                val destination = when (userType) {
-                                    "student" -> "homePageEstudiantes"
-                                    "tutor" -> "homePageTutores"
-                                    "admin" -> HomePageAdminDestination().route
-                                    else -> LoginDestination.route
-                                }
-
-                                navController.navigate(destination) {
-                                    popUpTo(LoginDestination.route) { inclusive = true }
-                                }
+                            navController.navigate(destination) {
+                                popUpTo(LoginDestination.route) { inclusive = true }
                             }
                         },
                         loginViewModelFactory = loginViewModelFactory,

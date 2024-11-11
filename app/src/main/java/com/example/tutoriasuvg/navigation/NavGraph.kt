@@ -19,13 +19,9 @@ import com.example.tutoriasuvg.presentation.login.loginNavigation
 import com.example.tutoriasuvg.presentation.signup.registerNavigation
 import com.example.tutoriasuvg.presentation.signup.registerTutorNavigation
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.serialization.encodeToString
 
 @Composable
 fun NavGraph(
@@ -39,51 +35,6 @@ fun NavGraph(
     loginRepository: FirebaseLoginRepository,
     registerRepository: FirebaseRegisterRepository
 ) {
-    val scope = rememberCoroutineScope()
-
-    val email = FirebaseAuth.getInstance().currentUser?.email
-
-    var identifier by remember { mutableStateOf<String?>(null) }
-    var isUsingCarnet by remember { mutableStateOf(true) }
-
-    LaunchedEffect(email) {
-        if (email != null && identifier == null) {
-            val firestore = FirebaseFirestore.getInstance()
-            try {
-                val querySnapshot = firestore.collection("users")
-                    .whereEqualTo("email", email)
-                    .get()
-                    .await()
-
-                if (!querySnapshot.isEmpty) {
-                    val document = querySnapshot.documents[0]
-                    identifier = document.getString("carnet") ?: email
-                    isUsingCarnet = document.contains("carnet")
-
-                    sessionManager.saveUserSession(
-                        userType = document.getString("userType") ?: "unknown",
-                        email = email,
-                        identifier = identifier!!,
-                        isUsingCarnet = isUsingCarnet
-                    )
-                } else {
-                    identifier = email
-                    isUsingCarnet = false
-                    sessionManager.saveUserSession(
-                        userType = "unknown",
-                        email = email,
-                        identifier = email,
-                        isUsingCarnet = false
-                    )
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                identifier = email
-                isUsingCarnet = false
-            }
-        }
-    }
-
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -142,30 +93,29 @@ fun NavGraph(
             SolicitudTutoriaNavigation(navController)
         }
 
-        // Pantalla de progreso de horas usando el identificador (carnet o email)
-        composable("progresoHorasBeca") {
-            identifier?.let {
-                // Crear los argumentos serializables en formato JSON
-                val args = ProgresoHorasBecaArgs(identifier = it, isUsingCarnet = isUsingCarnet)
+        composable("perfil_tutor") {
+            var identifier by remember { mutableStateOf<String?>(null) }
+            var isUsingCarnet by remember { mutableStateOf<Boolean?>(null) }
+
+            LaunchedEffect(Unit) {
+                identifier = sessionManager.getUserIdentifierSync()
+                isUsingCarnet = sessionManager.isUsingCarnetSync()
+            }
+
+            if (identifier != null && isUsingCarnet != null) {
+                val args = PerfilTutorArgs(userId = identifier!!, isUsingCarnet = isUsingCarnet!!)
                 val argsJson = Json.encodeToString(args)
 
-                // Crear el ViewModelFactory
-                val viewModelFactory = ProgresoHorasBecaViewModelFactory(
-                    args = args,
+                val viewModelFactory = PerfilTutorViewModelFactory(
                     sessionManager = sessionManager,
                     loginRepository = loginRepository
                 )
 
-                ProgresoHorasBecaNavigation(
+                PerfilTutorNavigation(
                     navController = navController,
                     argsJson = argsJson,
                     viewModelFactory = viewModelFactory
                 )
-            } ?: run {
-                navController.navigate(LoginDestination.route) {
-                    popUpTo(0)
-                    launchSingleTop = true
-                }
             }
         }
 
@@ -207,12 +157,17 @@ fun NavGraph(
             HomePageAdminNavigation(navController)
         }
 
-        composable(VerProgresosDestination().route) {
-            VerProgresosNavigation(navController)
+        composable(route = PerfilAdminDestination().route) {
+            PerfilAdminNavigation(navController = navController)
         }
 
-        composable(NotificacionesDestination().route) {
-            NotificacionesNavigation(navController)
+        composable(route = VerProgresosDestination().route) {
+            VerProgresosNavigation(navController = navController)
         }
+
+        composable(route = NotificacionesDestination().route) {
+            NotificacionesNavigation(navController = navController)
+        }
+
     }
 }
