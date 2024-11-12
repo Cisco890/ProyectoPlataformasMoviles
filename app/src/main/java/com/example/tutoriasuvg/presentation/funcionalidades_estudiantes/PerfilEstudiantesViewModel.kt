@@ -3,6 +3,7 @@ package com.example.tutoriasuvg.presentation.funcionalidades_estudiantes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
+import com.example.tutoriasuvg.data.repository.FirebaseRegisterRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -15,7 +16,8 @@ data class Estudiante(
 )
 
 class PerfilEstudianteViewModel(
-    private val loginRepository: FirebaseLoginRepository
+    private val loginRepository: FirebaseLoginRepository,
+    private val registerRepository: FirebaseRegisterRepository
 ) : ViewModel() {
 
     private val _estudiante = MutableStateFlow(
@@ -74,15 +76,37 @@ class PerfilEstudianteViewModel(
         }
     }
 
-    fun volvermeTutor() {
+    fun volvermeTutor(
+        hours: Int = 0,
+        courses: List<String> = emptyList(),
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
         viewModelScope.launch {
-            _isTutor.update { true }
             val userId = loginRepository.getCurrentUserId()
             if (userId != null) {
-                val result = loginRepository.updateUserType(userId, "tutor")
-                result.onFailure { exception ->
-                    _errorMessage.value = "Error al actualizar a tutor: ${exception.message}"
+                val updateTypeResult = loginRepository.updateUserType(userId, "tutor")
+                if (updateTypeResult.isSuccess) {
+                    val registerResult = registerRepository.registerTutorData(userId, hours, courses)
+                    registerResult.fold(
+                        onSuccess = {
+                            _isTutor.value = true
+                            onSuccess()
+                        },
+                        onFailure = { exception ->
+                            _errorMessage.value = "Error al registrar datos de tutor: ${exception.message}"
+                            onFailure(_errorMessage.value ?: "Error desconocido")
+                        }
+                    )
+                } else {
+                    val exception = updateTypeResult.exceptionOrNull()
+                    _errorMessage.value = "Error al actualizar el tipo de usuario: ${exception?.message}"
+                    onFailure(_errorMessage.value ?: "Error desconocido")
                 }
+            } else {
+                val message = "Usuario no encontrado."
+                _errorMessage.value = message
+                onFailure(message)
             }
         }
     }

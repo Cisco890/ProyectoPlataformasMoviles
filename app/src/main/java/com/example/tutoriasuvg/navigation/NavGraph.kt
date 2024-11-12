@@ -86,8 +86,13 @@ fun NavGraph(
         }
 
         composable("perfil_estudiante") {
-            PerfilEstudianteNavigation(navController, loginRepository)
+            PerfilEstudianteNavigation(
+                navController = navController,
+                loginRepository = loginRepository,
+                registerRepository = registerRepository
+            )
         }
+
 
         composable("solicitud_tutoria") {
             SolicitudTutoriaNavigation(navController)

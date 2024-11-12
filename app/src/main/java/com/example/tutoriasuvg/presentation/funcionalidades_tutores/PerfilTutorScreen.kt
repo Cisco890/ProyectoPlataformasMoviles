@@ -91,10 +91,10 @@ fun PerfilTutorScreen(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                Spacer(modifier = Modifier.weight(1f)) // Empuja el contenido hacia la parte superior
+                Spacer(modifier = Modifier.weight(1f))
 
                 Button(
-                    onClick = onLoginNavigate, // Cambia el onClick para llamar a la función de navegación
+                    onClick = onLoginNavigate,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier

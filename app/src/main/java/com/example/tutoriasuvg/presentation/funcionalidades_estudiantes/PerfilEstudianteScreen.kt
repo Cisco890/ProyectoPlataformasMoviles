@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
+import com.example.tutoriasuvg.data.repository.FirebaseRegisterRepository
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 @Composable
@@ -132,14 +133,16 @@ fun PerfilAppBar(onBackClick: () -> Unit) {
 @Composable
 fun PerfilEstudianteScreenPreview() {
     val loginRepository = FirebaseLoginRepository()
+    val registerRepository = FirebaseRegisterRepository()
 
     TutoriasUVGTheme {
         PerfilEstudianteScreen(
             onBackClick = {},
             onLogoutClick = {},
             onBecomeTutorClick = {},
-            viewModel = PerfilEstudianteViewModel(loginRepository) // Pasa loginRepository aquí
+            viewModel = PerfilEstudianteViewModel(loginRepository, registerRepository)
         )
     }
 }
+
 
