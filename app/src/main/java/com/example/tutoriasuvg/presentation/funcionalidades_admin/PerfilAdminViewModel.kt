@@ -2,13 +2,19 @@ package com.example.tutoriasuvg.presentation.funcionalidades_admin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
+import com.example.tutoriasuvg.data.local.SessionManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PerfilAdminViewModel : ViewModel() {
+class PerfilAdminViewModel(
+    private val loginRepository: FirebaseLoginRepository,
+    private val sessionManager: SessionManager
+) : ViewModel() {
+
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -33,7 +39,7 @@ class PerfilAdminViewModel : ViewModel() {
                         if (document.exists()) {
                             _adminName.value = document.getString("name") ?: "Nombre no disponible"
                         } else {
-                            _adminName.value = "Administrador no encontrado"
+                            _adminName.value = "Juan Carlos Durini"
                         }
                     }
                     .addOnFailureListener {
@@ -46,7 +52,10 @@ class PerfilAdminViewModel : ViewModel() {
     }
 
     fun logout() {
-        auth.signOut()
-        _logoutEvent.value = true
+        viewModelScope.launch {
+            loginRepository.logout()
+            sessionManager.clearSession()
+            _logoutEvent.value = true
+        }
     }
 }

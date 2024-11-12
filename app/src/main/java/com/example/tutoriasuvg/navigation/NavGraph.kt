@@ -158,7 +158,11 @@ fun NavGraph(
         }
 
         composable(route = PerfilAdminDestination().route) {
-            PerfilAdminNavigation(navController = navController)
+            PerfilAdminNavigation(
+                navController = navController,
+                loginRepository = loginRepository,
+                sessionManager = sessionManager
+            )
         }
 
         composable(route = VerProgresosDestination().route) {
