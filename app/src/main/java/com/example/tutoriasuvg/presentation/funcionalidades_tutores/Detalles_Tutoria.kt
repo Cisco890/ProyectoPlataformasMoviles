@@ -29,9 +29,9 @@ import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 fun DetalleTutoria(
     onBackClick: () -> Unit,
     title: String,
-    date: String,
-    location: String,
-    time: String,
+    date: String?,
+    location: String?,
+    time: String?,
     studentName: String,
     isVirtual: Boolean,
     link: String? = null,
@@ -57,7 +57,6 @@ fun DetalleTutoria(
             )
         }
     ) { paddingValues ->
-        // Contenido principal de la pantalla
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -66,12 +65,11 @@ fun DetalleTutoria(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(150.dp))
-            // Row para ícono y la información
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Ícono de tutoría dentro de un círculo verde
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -88,17 +86,15 @@ fun DetalleTutoria(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                // Información de la tutoría
                 Column(
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = date, fontSize = 16.sp, color = Color.Gray)
+                    Text(text = date ?: "Fecha a definir", fontSize = 16.sp, color = Color.Gray)
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Mostrar ubicación (si es virtual, también muestra el link)
                     if (isVirtual && link != null) {
                         Text(
                             text = "Virtual: $link",
@@ -107,21 +103,19 @@ fun DetalleTutoria(
                             fontWeight = FontWeight.Bold
                         )
                     } else {
-                        Text(text = location, fontSize = 16.sp, color = Color.Gray)
+                        Text(text = location ?: "Ubicación a definir", fontSize = 16.sp, color = Color.Gray)
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = time, fontSize = 16.sp, color = Color.Gray)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = studentName, fontSize = 16.sp, color = Color.Gray)
+                    Text(text = time ?: "Hora a definir", fontSize = 16.sp, color = Color.Gray)
                 }
             }
+
             Spacer(modifier = Modifier.height(64.dp))
 
-            // Botón de "Tutoría Completada"
             if (!isCompleted) {
                 Button(
-                    onClick = { viewModel.completarTutoria() },  // Marcamos la tutoría como completada
+                    onClick = { viewModel.completarTutoria() },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007F39)),
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
@@ -136,6 +130,7 @@ fun DetalleTutoria(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

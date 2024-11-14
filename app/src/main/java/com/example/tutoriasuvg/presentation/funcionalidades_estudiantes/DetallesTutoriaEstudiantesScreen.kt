@@ -28,7 +28,6 @@ import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 fun DetallesTutoriaEstudiantesScreen(
     onBackClick: () -> Unit,
     tutoria: TutoriasEs,
-    studentName: String,
     isVirtual: Boolean,
     viewModel: DetallesTutoriaEstudiantesViewModel = viewModel()
 ) {
@@ -88,7 +87,7 @@ fun DetallesTutoriaEstudiantesScreen(
                 ) {
                     Text(text = tutoria.title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = tutoria.date, fontSize = 16.sp, color = Color.Gray)
+                    Text(text = tutoria.date ?: "Fecha a definir", fontSize = 16.sp, color = Color.Gray)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     if (isVirtual && tutoria.link != null) {
@@ -99,13 +98,11 @@ fun DetallesTutoriaEstudiantesScreen(
                             fontWeight = FontWeight.Bold
                         )
                     } else {
-                        Text(text = tutoria.location, fontSize = 16.sp, color = Color.Gray)
+                        Text(text = tutoria.location ?: "Ubicación a definir", fontSize = 16.sp, color = Color.Gray)
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = tutoria.time, fontSize = 16.sp, color = Color.Gray)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = studentName, fontSize = 16.sp, color = Color.Gray)
+                    Text(text = tutoria.time ?: "Hora a definir", fontSize = 16.sp, color = Color.Gray)
                 }
             }
 
@@ -142,7 +139,6 @@ fun DetallesTutoriaEstudiantesScreenPreview() {
                 time = "15:00 hrs - 16:00 hrs",
                 link = "Enlace Zoom"
             ),
-            studentName = "Nombre del estudiante",
             isVirtual = true
         )
     }

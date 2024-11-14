@@ -1,11 +1,16 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_estudiantes
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.tutoriasuvg.data.repository.SolicitudRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class SolicitudTutoriaViewModel : ViewModel() {
+class SolicitudTutoriaViewModel(
+    private val solicitudRepository: SolicitudRepository
+) : ViewModel() {
 
     private val _courseName = MutableStateFlow("")
     val courseName: StateFlow<String> = _courseName
@@ -21,6 +26,9 @@ class SolicitudTutoriaViewModel : ViewModel() {
         shifts.associateWith { false }
     )
     val selectedShift: StateFlow<Map<String, Boolean>> = _selectedShift
+
+    private val _message = MutableStateFlow<String?>(null)
+    val message: StateFlow<String?> = _message
 
     fun updateCourseName(newName: String) {
         _courseName.update { newName }
@@ -41,6 +49,32 @@ class SolicitudTutoriaViewModel : ViewModel() {
     }
 
     fun solicitarTutoria() {
- // se debe agregar la lógica para que la api funcione y se pueda guardar los datos
+        val selectedDaysList = _selectedDays.value.filterValues { it }.keys.toList()
+        val selectedShift = _selectedShift.value.filterValues { it }.keys.firstOrNull()
+
+        if (_courseName.value.isBlank() || selectedDaysList.isEmpty() || selectedShift == null) {
+            _message.value = "Por favor, complete todos los campos"
+            return
+        }
+
+        viewModelScope.launch {
+            solicitudRepository.sendTutoriaRequest(
+                courseName = _courseName.value,
+                days = selectedDaysList,
+                shift = selectedShift
+            )
+            _message.value = "Solicitud enviada exitosamente"
+            clearForm()
+        }
+    }
+
+    private fun clearForm() {
+        _courseName.value = ""
+        _selectedDays.update { it.mapValues { false } }
+        _selectedShift.update { it.mapValues { false } }
+    }
+
+    fun clearMessage() {
+        _message.update { null }
     }
 }

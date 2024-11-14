@@ -2,36 +2,27 @@ package com.example.tutoriasuvg.presentation.funcionalidades_tutores
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tutoriasuvg.data.model.TutoriaAsignada
 import com.example.tutoriasuvg.data.repository.SolicitudRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.serialization.Serializable
 
-@Serializable
-data class Tutoria(
-    val title: String,
-    val date: String,
-    val location: String,
-    val time: String,
-    val link: String?
-)
-
-class HomePageTutoresViewModel(
-    private val solicitudRepository: SolicitudRepository,
+class TutorNotificacionesViewModel(
+    solicitudRepository: SolicitudRepository,
     tutorId: String
 ) : ViewModel() {
 
-    val tutorias: StateFlow<List<Tutoria>> = solicitudRepository.getAsignacionesParaTutor(tutorId)
+    val tutorAsignaciones: StateFlow<List<TutoriaAsignada>> = solicitudRepository.getAsignacionesParaTutor(tutorId)
         .map { solicitudes ->
             solicitudes.map { solicitud ->
-                Tutoria(
-                    title = solicitud.courseName,
+                TutoriaAsignada(
+                    courseName = solicitud.courseName,
                     date = solicitud.date ?: "Fecha a definir",
-                    location = solicitud.location ?: "Ubicación a definir",
                     time = solicitud.time ?: "Hora a definir",
-                    link = solicitud.link
+                    modalidad = solicitud.shift,
+                    location = solicitud.location ?: "Ubicación a definir"
                 )
             }
         }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())

@@ -1,11 +1,12 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_tutores
 
-import HomePageTutoresViewModel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,21 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
+import com.example.tutoriasuvg.data.repository.SolicitudRepository
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class Tutoria(
-    val title: String,
-    val date: String,
-    val location: String,
-    val time: String,
-    val link: String?
-)
-
 @Composable
 fun HomePageTutores(
-    viewModel: HomePageTutoresViewModel,
+    viewModel: HomePageTutoresViewModel = viewModel(),
     onTutoriaClick: (Tutoria) -> Unit,
     onProgresoClick: () -> Unit
 ) {
@@ -47,7 +40,6 @@ fun HomePageTutores(
         topBar = { AppBar(onProgresoClick = onProgresoClick) },
     ) { paddingValues ->
         if (tutorias.isEmpty()) {
-            // Mostrar mensaje cuando no hay tutorías
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -61,14 +53,13 @@ fun HomePageTutores(
                 )
             }
         } else {
-            // Mostrar la lista de tutorías asignadas
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(16.dp)
             ) {
-                tutorias.forEach { tutoria ->
+                items(tutorias) { tutoria ->
                     CardTutoria(
                         title = tutoria.title,
                         date = tutoria.date,
@@ -108,7 +99,6 @@ fun CardTutoria(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Ícono de calendario dentro de un círculo verde
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
@@ -123,7 +113,6 @@ fun CardTutoria(
                 )
             }
 
-            // Información de la tutoría
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -133,19 +122,12 @@ fun CardTutoria(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = date, fontSize = 14.sp, color = Color.Black)
                 Spacer(modifier = Modifier.height(4.dp))
-
-                // Mostrar la ubicación con el link (si está disponible)
-                if (link != null) {
-                    Text(
-                        text = "$location$link",
-                        fontSize = 14.sp,
-                        color = Color(0xFF007F39),
-                        fontWeight = FontWeight.Bold
-                    )
-                } else {
-                    Text(text = location, fontSize = 14.sp, color = Color.Black)
-                }
-
+                Text(
+                    text = if (link != null) "$location $link" else location,
+                    fontSize = 14.sp,
+                    color = if (link != null) Color(0xFF007F39) else Color.Black,
+                    fontWeight = if (link != null) FontWeight.Bold else FontWeight.Normal
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = time, fontSize = 14.sp, color = Color.Black)
             }
@@ -172,7 +154,7 @@ fun AppBar(onProgresoClick: () -> Unit) {
             }
         },
         actions = {
-            IconButton(onClick = { onProgresoClick() }) {
+            IconButton(onClick = onProgresoClick) {
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
                     contentDescription = "User Icon",
@@ -192,30 +174,18 @@ fun AppBar(onProgresoClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun HomePageConTutoresPreview() {
+    val mockSolicitudRepository = SolicitudRepository()
+
     val mockViewModel = HomePageTutoresViewModel(
-        tutoriasIniciales = listOf(
-            Tutoria(
-                title = "Ecuaciones diferenciales I",
-                date = "17/09/2024",
-                location = "Presencial: CIT-503",
-                time = "15:00 hrs - 16:00 hrs",
-                link = null
-            ),
-            Tutoria(
-                title = "Física 3",
-                date = "19/09/2024",
-                location = "Virtual: ",
-                time = "15:00 hrs - 16:00 hrs",
-                link = "Enlace Zoom"
-            )
-        )
+        solicitudRepository = mockSolicitudRepository,
+        tutorId = "sampleTutorId"
     )
 
     TutoriasUVGTheme {
         HomePageTutores(
             viewModel = mockViewModel,
-            onTutoriaClick = { /* */ },
-            onProgresoClick = { /* */ }
+            onTutoriaClick = { /* Acción al hacer clic en la tutoría */ },
+            onProgresoClick = { /* Acción al hacer clic en progreso */ }
         )
     }
 }
@@ -223,13 +193,18 @@ fun HomePageConTutoresPreview() {
 @Preview(showBackground = true)
 @Composable
 fun HomePageTutoresSinTutoriasPreview() {
-    val mockViewModel = HomePageTutoresViewModel(tutoriasIniciales = emptyList())
+    val mockSolicitudRepository = SolicitudRepository()
+
+    val mockViewModel = HomePageTutoresViewModel(
+        solicitudRepository = mockSolicitudRepository,
+        tutorId = "sampleTutorId"
+    )
 
     TutoriasUVGTheme {
         HomePageTutores(
             viewModel = mockViewModel,
-            onTutoriaClick = { /* */ },
-            onProgresoClick = { /**/ }
+            onTutoriaClick = { /* Acción al hacer clic en la tutoría */ },
+            onProgresoClick = { /* Acción al hacer clic en progreso */ }
         )
     }
 }

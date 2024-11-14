@@ -1,32 +1,57 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_admin
 
+import android.annotation.SuppressLint
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.collectAsState
-import kotlinx.serialization.Serializable
+import kotlinx.coroutines.launch
+import com.example.tutoriasuvg.data.model.Solicitud
+import com.example.tutoriasuvg.data.model.Tutor
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificacionesScreen(viewModel: NotificacionesViewModel = viewModel(), onBackClick: () -> Unit) {
-    val notificaciones = viewModel.notificaciones.collectAsState().value
+fun NotificacionesScreen(
+    viewModel: NotificacionesViewModel,
+    onBackClick: () -> Unit
+) {
+    val notificaciones by viewModel.notificaciones.collectAsState()
+    val tutoresDisponibles by viewModel.tutoresDisponibles.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    var showDialog by remember { mutableStateOf(false) }
+    var currentSolicitud by remember { mutableStateOf<Solicitud?>(null) }
+    var selectedDate by remember { mutableStateOf("") }
+    var selectedStartTime by remember { mutableStateOf("") }
+    var selectedEndTime by remember { mutableStateOf("") }
+    var selectedLocation by remember { mutableStateOf("") }
+    var selectedTutorId by remember { mutableStateOf<String?>(null) }
+
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.cargarNotificaciones()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -46,32 +71,201 @@ fun NotificacionesScreen(viewModel: NotificacionesViewModel = viewModel(), onBac
             )
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            notificaciones.forEach { notificacion ->
+            items(notificaciones) { notificacion ->
                 NotificacionCard(
-                    titulo = notificacion.titulo,
-                    fecha = notificacion.fecha,
-                    modalidad = notificacion.modalidad,
-                    hora = notificacion.hora,
-                    estado = notificacion.estado
+                    notificacion = notificacion,
+                    onAsignarTutorClick = {
+                        currentSolicitud = notificacion.solicitud
+                        viewModel.obtenerTutoresParaCurso(notificacion.titulo)
+                        showDialog = true
+                    }
                 )
             }
+        }
+
+        if (showDialog) {
+            AsignarTutorDialog(
+                tutoresDisponibles = tutoresDisponibles,
+                selectedTutorId = selectedTutorId,
+                selectedDate = selectedDate,
+                selectedStartTime = selectedStartTime,
+                selectedEndTime = selectedEndTime,
+                selectedLocation = selectedLocation,
+                onTutorSelect = { selectedTutorId = it },
+                onDateChange = { selectedDate = it },
+                onStartTimeChange = { selectedStartTime = it },
+                onEndTimeChange = { selectedEndTime = it },
+                onLocationChange = { selectedLocation = it },
+                onDismiss = { showDialog = false },
+                onConfirm = {
+                    coroutineScope.launch {
+                        currentSolicitud?.let { solicitud ->
+                            viewModel.asignarTutor(
+                                solicitud = solicitud,
+                                tutorId = selectedTutorId ?: return@launch,
+                                date = selectedDate,
+                                location = selectedLocation,
+                                time = "$selectedStartTime - $selectedEndTime"
+                            )
+                        }
+                        // Limpiar los campos después de la asignación
+                        selectedTutorId = null
+                        selectedDate = ""
+                        selectedStartTime = ""
+                        selectedEndTime = ""
+                        selectedLocation = ""
+                        showDialog = false
+                    }
+                }
+            )
         }
     }
 }
 
+@SuppressLint("DefaultLocale")
+@Composable
+fun AsignarTutorDialog(
+    tutoresDisponibles: List<Tutor>,
+    selectedTutorId: String?,
+    selectedDate: String,
+    selectedStartTime: String,
+    selectedEndTime: String,
+    selectedLocation: String,
+    onTutorSelect: (String) -> Unit,
+    onDateChange: (String) -> Unit,
+    onStartTimeChange: (String) -> Unit,
+    onEndTimeChange: (String) -> Unit,
+    onLocationChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    val context = LocalContext.current
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text("Seleccionar Tutor") },
+        text = {
+            Column {
+                // Selector de tutores con Checkbox
+                tutoresDisponibles.forEach { tutor ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onTutorSelect(tutor.id) }
+                            .padding(8.dp)
+                    ) {
+                        Checkbox(
+                            checked = selectedTutorId == tutor.id,
+                            onCheckedChange = { isChecked ->
+                                if (isChecked) onTutorSelect(tutor.id) else onTutorSelect("")
+                            }
+                        )
+                        Text(text = tutor.name)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Selector de fecha
+                OutlinedTextField(
+                    value = selectedDate,
+                    onValueChange = onDateChange,
+                    label = { Text("Fecha") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            val calendar = Calendar.getInstance()
+                            DatePickerDialog(
+                                context,
+                                { _, year, month, dayOfMonth ->
+                                    onDateChange("$dayOfMonth/${month + 1}/$year")
+                                },
+                                calendar.get(Calendar.YEAR),
+                                calendar.get(Calendar.MONTH),
+                                calendar.get(Calendar.DAY_OF_MONTH)
+                            ).show()
+                        }
+                )
+
+                // Selector de hora de inicio
+                OutlinedTextField(
+                    value = selectedStartTime,
+                    onValueChange = onStartTimeChange,
+                    label = { Text("Hora de Inicio") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .clickable {
+                            val calendar = Calendar.getInstance()
+                            TimePickerDialog(
+                                context,
+                                { _, hour, minute ->
+                                    onStartTimeChange(String.format("%02d:%02d", hour, minute))
+                                },
+                                calendar.get(Calendar.HOUR_OF_DAY),
+                                calendar.get(Calendar.MINUTE),
+                                true
+                            ).show()
+                        }
+                )
+
+                // Selector de hora de fin
+                OutlinedTextField(
+                    value = selectedEndTime,
+                    onValueChange = onEndTimeChange,
+                    label = { Text("Hora de Fin") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .clickable {
+                            val calendar = Calendar.getInstance()
+                            TimePickerDialog(
+                                context,
+                                { _, hour, minute ->
+                                    onEndTimeChange(String.format("%02d:%02d", hour, minute))
+                                },
+                                calendar.get(Calendar.HOUR_OF_DAY),
+                                calendar.get(Calendar.MINUTE),
+                                true
+                            ).show()
+                        }
+                )
+
+                // Campo de ubicación
+                OutlinedTextField(
+                    value = selectedLocation,
+                    onValueChange = onLocationChange,
+                    label = { Text("Ubicación") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Asignar", color = Color(0xFF007F39))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cerrar")
+            }
+        }
+    )
+}
+
 @Composable
 fun NotificacionCard(
-    titulo: String,
-    fecha: String,
-    modalidad: String,
-    hora: String,
-    estado: String
+    notificacion: Notificacion,
+    onAsignarTutorClick: () -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -103,28 +297,32 @@ fun NotificacionCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Información de la tutoría
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(text = titulo, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text(text = notificacion.titulo, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = fecha, fontSize = 14.sp, color = Color.Black)
+                Text(text = notificacion.fecha ?: "Fecha a definir", fontSize = 14.sp, color = Color.Black)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = modalidad, fontSize = 14.sp, color = Color.Black)
+                Text(text = notificacion.modalidad, fontSize = 14.sp, color = Color.Black)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = hora, fontSize = 14.sp, color = Color.Black)
+                Text(text = notificacion.hora ?: "Hora a definir", fontSize = 14.sp, color = Color.Black)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = estado, fontSize = 14.sp, color = Color.Black)
+                Text(text = notificacion.estado, fontSize = 14.sp, color = Color.Black)
+
+                if (notificacion.tutorId == null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { onAsignarTutorClick() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7)),
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("Asignar Tutor", color = Color.White)
+                    }
+                } else {
+                    Text(text = "Tutor asignado: ${notificacion.tutorId}", color = Color.Gray, fontSize = 14.sp)
+                }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun NotificacionesScreenPreview() {
-    TutoriasUVGTheme {
-        NotificacionesScreen(onBackClick = {})
     }
 }

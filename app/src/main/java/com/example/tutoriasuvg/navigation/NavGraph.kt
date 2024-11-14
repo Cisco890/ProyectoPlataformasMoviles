@@ -1,3 +1,4 @@
+// NavGraph.kt
 package com.example.tutoriasuvg.navigation
 
 import androidx.compose.runtime.*
@@ -7,8 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.tutoriasuvg.data.local.SessionManager
-import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
-import com.example.tutoriasuvg.data.repository.FirebaseRegisterRepository
+import com.example.tutoriasuvg.data.repository.*
 import com.example.tutoriasuvg.presentation.forgotpassword.forgotPasswordNavigation
 import com.example.tutoriasuvg.presentation.funcionalidades_admin.*
 import com.example.tutoriasuvg.presentation.funcionalidades_estudiantes.*
@@ -18,8 +18,9 @@ import com.example.tutoriasuvg.presentation.login.LoginViewModelFactory
 import com.example.tutoriasuvg.presentation.login.loginNavigation
 import com.example.tutoriasuvg.presentation.signup.registerNavigation
 import com.example.tutoriasuvg.presentation.signup.registerTutorNavigation
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -35,6 +36,10 @@ fun NavGraph(
     loginRepository: FirebaseLoginRepository,
     registerRepository: FirebaseRegisterRepository
 ) {
+    val solicitudRepository = SolicitudRepository()
+    val tutorRepository = TutorRepository()
+    val tutoriasRepository = TutoriasRepository()
+
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -82,7 +87,10 @@ fun NavGraph(
 
         // Pantallas de estudiantes
         composable("homePageEstudiantes") {
-            HomePageEstudiantesNavigation(navController = navController)
+            HomePageEstudiantesNavigation(
+                navController = navController,
+                solicitudRepository = solicitudRepository
+            )
         }
 
         composable("perfil_estudiante") {
@@ -93,9 +101,11 @@ fun NavGraph(
             )
         }
 
-
         composable("solicitud_tutoria") {
-            SolicitudTutoriaNavigation(navController)
+            SolicitudTutoriaNavigation(
+                navController = navController,
+                solicitudRepository = solicitudRepository
+            )
         }
 
         composable("perfil_tutor") {
@@ -126,21 +136,46 @@ fun NavGraph(
 
         // Pantallas de tutor
         composable("homePageTutores") {
-            HomePageTutoresNavigation(navController)
+            var tutorId by remember { mutableStateOf<String?>(null) }
+
+            LaunchedEffect(Unit) {
+                tutorId = sessionManager.getUserIdentifierSync()
+            }
+
+            if (tutorId != null) {
+                HomePageTutoresNavigation(
+                    navController = navController,
+                    solicitudRepository = solicitudRepository,
+                    tutorId = tutorId!!
+                )
+            }
         }
 
+        // Nueva ruta para "detalles_tutoria"
         composable(
             route = "detalles_tutoria/{tutoriaJson}",
             arguments = listOf(navArgument("tutoriaJson") { type = NavType.StringType })
         ) { backStackEntry ->
             val tutoriaJson = backStackEntry.arguments?.getString("tutoriaJson")
             if (tutoriaJson != null) {
-                DetallesTutoriaNavigation(navController, tutoriaJson)
+                val decodedJson = URLDecoder.decode(tutoriaJson, StandardCharsets.UTF_8.toString())
+                val tutoria = Json.decodeFromString<Tutoria>(decodedJson)
+
+                DetalleTutoria(
+                    onBackClick = { navController.popBackStack() },
+                    title = tutoria.title,
+                    date = tutoria.date ?: "Fecha a definir",
+                    location = tutoria.location ?: "Ubicación a definir",
+                    time = tutoria.time ?: "Hora a definir",
+                    studentName = "Nombre del estudiante",
+                    isVirtual = tutoria.link != null,
+                    link = tutoria.link
+                )
             }
         }
 
         composable(
-            route = DetallesTutoriaEstudiantesRoute,
+            route = "detallesTutoriaEstudiantes/{tutoriaJson}",
             arguments = listOf(navArgument("tutoriaJson") { type = NavType.StringType })
         ) { backStackEntry ->
             val encodedTutoriasEsJson = backStackEntry.arguments?.getString("tutoriaJson")
@@ -151,7 +186,6 @@ fun NavGraph(
                 DetallesTutoriaEstudiantesScreen(
                     onBackClick = { navController.popBackStack() },
                     tutoria = tutoria,
-                    studentName = "Nombre del estudiante",
                     isVirtual = tutoria.link != null
                 )
             }
@@ -159,7 +193,10 @@ fun NavGraph(
 
         // Pantallas de administrador
         composable(HomePageAdminDestination().route) {
-            HomePageAdminNavigation(navController)
+            HomePageAdminNavigation(
+                navController = navController,
+                tutoriasRepository = tutoriasRepository
+            )
         }
 
         composable(route = PerfilAdminDestination().route) {
@@ -175,8 +212,11 @@ fun NavGraph(
         }
 
         composable(route = NotificacionesDestination().route) {
-            NotificacionesNavigation(navController = navController)
+            NotificacionesNavigation(
+                navController = navController,
+                solicitudRepository = solicitudRepository,
+                tutorRepository = tutorRepository
+            )
         }
-
     }
 }

@@ -38,7 +38,6 @@ fun NavGraphBuilder.DetallesTutoriaEstudiantesNavigation(navController: NavContr
         DetallesTutoriaEstudiantesScreen(
             onBackClick = { navController.popBackStack() },
             tutoria = tutoria,
-            studentName = "Nombre del estudiante",
             isVirtual = tutoria.link != null
         )
     }

@@ -23,25 +23,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
+import com.example.tutoriasuvg.data.model.Solicitud
+import com.example.tutoriasuvg.data.repository.TutoriasRepository
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.serialization.Serializable
-
-data class Solicitud(
-    val nombreEstudiante: String,
-    val tutoria: String,
-    val jornada: String,
-    val diasPreferencia: String
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePageAdmin(
-    viewModel: HomePageAdminViewModel = viewModel(),
+    tutoriasRepository: TutoriasRepository,
     onProfileClick: () -> Unit,
     onVerProgresosClick: () -> Unit,
     onNotificacionesClick: () -> Unit
 ) {
+    val viewModel: HomePageAdminViewModel = viewModel(
+        factory = HomePageAdminViewModelFactory(tutoriasRepository)
+    )
+
     val solicitudes = viewModel.solicitudes.collectAsState().value
     Scaffold(
         topBar = { AdminAppBar(onProfileClick = onProfileClick) },
@@ -238,20 +239,22 @@ fun AdminAppBar(onProfileClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun HomePageAdminWithSolicitudesPreview() {
-    val mockViewModel = object : HomePageAdminViewModel() {
-        override val solicitudes = MutableStateFlow(
+    val tutoriasRepository = TutoriasRepository().apply {
+        actualizarSolicitudes(
             listOf(
                 Solicitud(
-                    nombreEstudiante = "FERNANDO JOSÉ RUEDA RODAS",
-                    tutoria = "Ecuaciones Diferenciales I",
-                    jornada = "Vespertina",
-                    diasPreferencia = "Jueves"
+                    id = "1",
+                    courseName = "Ecuaciones Diferenciales I",
+                    days = listOf("Jueves"),
+                    shift = "Vespertina",
+                    tutorId = null
                 ),
                 Solicitud(
-                    nombreEstudiante = "FERNANDO ANDREE HERNÁNDEZ",
-                    tutoria = "Matemática Discreta I",
-                    jornada = "Matutina",
-                    diasPreferencia = "Martes, Viernes"
+                    id = "2",
+                    courseName = "Matemática Discreta I",
+                    days = listOf("Martes", "Viernes"),
+                    shift = "Matutina",
+                    tutorId = null
                 )
             )
         )
@@ -259,27 +262,11 @@ fun HomePageAdminWithSolicitudesPreview() {
 
     TutoriasUVGTheme {
         HomePageAdmin(
-            viewModel = mockViewModel,
+            tutoriasRepository = tutoriasRepository,
             onProfileClick = { /* Acción para el perfil */ },
-            onVerProgresosClick = { /**/ },
-            onNotificacionesClick = { /**/ }
+            onVerProgresosClick = { /* Acción para ver progresos */ },
+            onNotificacionesClick = { /* Acción para notificaciones */ }
         )
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun HomePageAdminSinSolicitudesPreview() {
-    val mockViewModel = object : HomePageAdminViewModel() {
-        override val solicitudes = MutableStateFlow(emptyList<Solicitud>())
-    }
-
-    TutoriasUVGTheme {
-        HomePageAdmin(
-            viewModel = mockViewModel,
-            onProfileClick = { /* Acción para el perfil */ },
-            onVerProgresosClick = { /**/ },
-            onNotificacionesClick = { /**/ }
-        )
-    }
-}
