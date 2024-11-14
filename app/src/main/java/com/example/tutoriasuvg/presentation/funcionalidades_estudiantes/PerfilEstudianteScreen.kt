@@ -64,8 +64,9 @@ fun PerfilEstudianteScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Actualización del texto para mostrar "Nombre:" y "Carnet:"
                 Text(
-                    text = "${estudiante.nombre}\n${estudiante.carnet}\n${estudiante.anio}",
+                    text = "Nombre: ${estudiante.nombre}\nCarnet: ${estudiante.carnet}",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
@@ -90,7 +91,7 @@ fun PerfilEstudianteScreen(
                 }
             }
 
-            // Logout button at the bottom
+            // Botón de Cerrar Sesión en la parte inferior
             Button(
                 onClick = onLogoutClick,
                 shape = CircleShape,
@@ -144,5 +145,3 @@ fun PerfilEstudianteScreenPreview() {
         )
     }
 }
-
-
