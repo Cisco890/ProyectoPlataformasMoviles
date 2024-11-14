@@ -34,5 +34,6 @@ class HomePageTutoresViewModel(
                     link = solicitud.link
                 )
             }
-        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }

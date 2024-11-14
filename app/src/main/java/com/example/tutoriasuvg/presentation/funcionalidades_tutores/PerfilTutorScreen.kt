@@ -77,8 +77,9 @@ fun PerfilTutorScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Corrected line: Show `completedHours` instead of `hours`
                 Text(
-                    "Total ${profileData.hours}/${profileData.totalHours}",
+                    "Total ${profileData.completedHours}/${profileData.totalHours}",
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )

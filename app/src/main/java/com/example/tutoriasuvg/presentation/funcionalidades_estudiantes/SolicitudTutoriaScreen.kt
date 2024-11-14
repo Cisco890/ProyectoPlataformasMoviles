@@ -25,7 +25,7 @@ import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 fun SolicitudTutoriaScreen(
     viewModel: SolicitudTutoriaViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     onBackClick: () -> Unit = {},
-    navController: NavController // Añadimos NavController como parámetro
+    navController: NavController
 ) {
     val context = LocalContext.current
     val courseName by viewModel.courseName.collectAsState()
@@ -167,8 +167,12 @@ fun SolicitudTutoriaScreen(
         message?.let { msg ->
             LaunchedEffect(msg) {
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                viewModel.clearMessage() // Limpiar el mensaje después de mostrar el toast
-                navController.navigate("homePageEstudiantes") // Redirige al HomePage
+                if (msg == "Solicitud enviada exitosamente") {
+                    navController.navigate("homePageEstudiantes") {
+                        popUpTo("homePageEstudiantes") { inclusive = true }
+                    }
+                }
+                viewModel.clearMessage()
             }
         }
     }

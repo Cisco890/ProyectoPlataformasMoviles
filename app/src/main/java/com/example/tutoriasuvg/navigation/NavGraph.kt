@@ -1,4 +1,3 @@
-// NavGraph.kt
 package com.example.tutoriasuvg.navigation
 
 import androidx.compose.runtime.*
@@ -65,7 +64,7 @@ fun NavGraph(
             }
         )
 
-        // Navegación de Registro y Recuperación de Contraseña
+        // Pantallas adicionales de registro y recuperación de contraseña
         registerNavigation(
             onBackToLogin = {
                 navController.navigate(LoginDestination.route) {
@@ -77,7 +76,6 @@ fun NavGraph(
             registerRepository = registerRepository
         )
 
-        // Navegación de Registro de Tutoría
         registerTutorNavigation(
             navController = navController,
             registerRepository = registerRepository
@@ -178,15 +176,23 @@ fun NavGraph(
             route = "detallesTutoriaEstudiantes/{tutoriaJson}",
             arguments = listOf(navArgument("tutoriaJson") { type = NavType.StringType })
         ) { backStackEntry ->
-            val encodedTutoriasEsJson = backStackEntry.arguments?.getString("tutoriaJson")
-            if (encodedTutoriasEsJson != null) {
-                val decodedTutoriasEsJson = URLDecoder.decode(encodedTutoriasEsJson, StandardCharsets.UTF_8.toString())
-                val tutoria = Json.decodeFromString<TutoriasEs>(decodedTutoriasEsJson)
+            var tutorId by remember { mutableStateOf<String?>(null) }
 
+            LaunchedEffect(Unit) {
+                tutorId = sessionManager.getUserIdentifierSync()
+            }
+
+            val encodedJson = backStackEntry.arguments?.getString("tutoriaJson") ?: return@composable
+            val decodedJson = URLDecoder.decode(encodedJson, StandardCharsets.UTF_8.toString())
+            val tutoria = Json.decodeFromString<TutoriasEs>(decodedJson)
+
+            tutorId?.let {
                 DetallesTutoriaEstudiantesScreen(
                     onBackClick = { navController.popBackStack() },
                     tutoria = tutoria,
-                    isVirtual = tutoria.link != null
+                    isVirtual = tutoria.link != null,
+                    tutorId = it,
+                    solicitudRepository = solicitudRepository
                 )
             }
         }

@@ -13,7 +13,8 @@ data class Solicitud(
     val date: String? = null,
     val location: String? = null,
     val time: String? = null,
-    val link: String? = null
+    val link: String? = null,
+    val completed: Boolean = false
 ) {
     constructor() : this("", "", emptyList(), "")
 }

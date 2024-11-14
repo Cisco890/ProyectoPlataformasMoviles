@@ -45,7 +45,7 @@ class SolicitudRepository(
     fun getAsignacionesParaEstudiante(): StateFlow<List<Solicitud>> {
         return _solicitudes
             .map { solicitudes ->
-                solicitudes.filter { it.tutorId != null }
+                solicitudes.filter { it.tutorId != null && !it.completed }
             }
             .stateIn(
                 scope = coroutineScope,
@@ -57,7 +57,7 @@ class SolicitudRepository(
     fun getAsignacionesParaTutor(tutorId: String): StateFlow<List<Solicitud>> {
         return _solicitudes
             .map { solicitudes ->
-                solicitudes.filter { it.tutorId == tutorId }
+                solicitudes.filter { it.tutorId == tutorId && !it.completed }
             }
             .stateIn(
                 scope = coroutineScope,
@@ -95,6 +95,36 @@ class SolicitudRepository(
             val newDocRef = firestore.collection("solicitudes").add(solicitud).await()
             val updatedSolicitud = solicitud.copy(id = newDocRef.id)
             _solicitudes.value = _solicitudes.value + updatedSolicitud
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun completarTutoria(tutoriaId: String, tutorId: String) {
+        try {
+            firestore.collection("solicitudes").document(tutoriaId).update("completed", true).await()
+
+            val tutorDocRef = firestore.collection("users").document(tutorId)
+            firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(tutorDocRef)
+                val currentHours = snapshot.getDouble("completedHours") ?: 0.0
+                val updatedHours = currentHours + 1.30
+                transaction.update(tutorDocRef, "completedHours", updatedHours)
+            }.await()
+
+            _solicitudes.value = _solicitudes.value.map { solicitud ->
+                if (solicitud.id == tutoriaId) solicitud.copy(completed = true) else solicitud
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun eliminarTutoriaEstudiante(tutoriaId: String) {
+        try {
+            firestore.collection("solicitudes").document(tutoriaId).delete().await()
+
+            _solicitudes.value = _solicitudes.value.filter { it.id != tutoriaId }
         } catch (e: Exception) {
             e.printStackTrace()
         }

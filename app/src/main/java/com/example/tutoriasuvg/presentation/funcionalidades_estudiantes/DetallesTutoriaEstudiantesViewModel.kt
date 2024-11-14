@@ -1,28 +1,35 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_estudiantes
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.tutoriasuvg.data.repository.SolicitudRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class DetallesTutoriaEstudiantesViewModel : ViewModel() {
-
-    private val _tutoriasEsList = MutableStateFlow<List<TutoriasEs>>(emptyList())
-    val tutoriasEsList: StateFlow<List<TutoriasEs>> = _tutoriasEsList
+class DetallesTutoriaEstudiantesViewModel(
+    private val solicitudRepository: SolicitudRepository
+) : ViewModel() {
 
     private val _isCompleted = MutableStateFlow(false)
     val isCompleted: StateFlow<Boolean> = _isCompleted
 
-    // Método para completar una tutoría específica
-    fun completarTutoriaEs(tutoriaEs: TutoriasEs) {
-        _tutoriasEsList.update { tutorias ->
-            tutorias.map { if (it == tutoriaEs) it.copy(link = "Completado") else it }
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    fun completarTutoriaEs(tutoria: TutoriasEs, tutorId: String) {
+        viewModelScope.launch {
+            try {
+                solicitudRepository.completarTutoria(tutoria.id, tutorId)
+                _isCompleted.value = true
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _errorMessage.value = e.message
+            }
         }
-        _isCompleted.update { true }
     }
 
-    // Método para agregar tutorías a la lista
-    fun agregarTutoriaEs(tutoriaEs: TutoriasEs) {
-        _tutoriasEsList.update { tutorias -> tutorias + tutoriaEs }
+    fun clearErrorMessage() {
+        _errorMessage.value = null
     }
 }

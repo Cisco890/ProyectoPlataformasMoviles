@@ -18,12 +18,13 @@ data class PerfilTutorData(
     val name: String,
     val carnet: String,
     val year: String,
-    val hours: Int,
+    val completedHours: Float,
     val totalHours: Int,
     val progress: Float
 ) : Serializable
 
 private const val TAG = "PerfilTutorViewModel"
+private const val HOURS_INCREMENT = 1.30f // Increment for each completed tutorial
 
 class PerfilTutorViewModel(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
@@ -47,11 +48,11 @@ class PerfilTutorViewModel(
                         val name = document.getString("name") ?: "Nombre desconocido"
                         val carnet = document.getString("carnet") ?: "Carnet desconocido"
                         val year = document.getString("year") ?: "Año desconocido"
-                        val hours = (document.getLong("totalHours") ?: 0).toInt()
-                        val totalHours = (document.getLong("hours") ?: 10).toInt()
-                        val progress = calculateProgress(hours, totalHours)
+                        val completedHours = (document.getDouble("completedHours") ?: 0.0).toFloat()
+                        val totalHours = (document.getLong("hours") ?: 50).toInt()
+                        val progress = calculateProgress(completedHours, totalHours)
 
-                        _profileData.value = PerfilTutorData(name, carnet, year, hours, totalHours, progress)
+                        _profileData.value = PerfilTutorData(name, carnet, year, completedHours, totalHours, progress)
                     } else {
                         logError("Documento de usuario no encontrado.", "User document not found for ID $userId.")
                     }
@@ -62,9 +63,34 @@ class PerfilTutorViewModel(
         }
     }
 
+    private fun calculateProgress(completedHours: Float, totalHours: Int): Float {
+        return if (totalHours > 0) completedHours / totalHours.toFloat() else 0f
+    }
 
-    private fun calculateProgress(hours: Int, totalHours: Int): Float {
-        return if (totalHours > 0) hours / totalHours.toFloat() else 0f
+    fun markTutorialAsCompleted() {
+        viewModelScope.launch {
+            val userId = sessionManager.getUserIdentifierSync()
+            if (userId != null && _profileData.value != null) {
+                try {
+                    // Increment completedHours and recalculate progress
+                    val newCompletedHours = _profileData.value!!.completedHours + HOURS_INCREMENT
+                    val newProgress = calculateProgress(newCompletedHours, _profileData.value!!.totalHours)
+
+                    // Update Firestore
+                    firestore.collection("users").document(userId)
+                        .update("completedHours", newCompletedHours)
+                        .await()
+
+                    // Update local state
+                    _profileData.value = _profileData.value?.copy(
+                        completedHours = newCompletedHours,
+                        progress = newProgress
+                    )
+                } catch (e: Exception) {
+                    logError("Error al marcar la tutoría como completada: ${e.message}", "Failed to mark tutorial as completed for user ID $userId", e)
+                }
+            }
+        }
     }
 
     private fun logError(logMessage: String, crashlyticsMessage: String, exception: Exception? = null) {

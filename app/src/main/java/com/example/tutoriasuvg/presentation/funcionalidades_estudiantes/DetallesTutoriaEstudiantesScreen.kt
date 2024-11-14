@@ -1,5 +1,6 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_estudiantes
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,20 +9,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
-import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
+import com.example.tutoriasuvg.data.repository.SolicitudRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,9 +29,30 @@ fun DetallesTutoriaEstudiantesScreen(
     onBackClick: () -> Unit,
     tutoria: TutoriasEs,
     isVirtual: Boolean,
-    viewModel: DetallesTutoriaEstudiantesViewModel = viewModel()
+    tutorId: String,
+    solicitudRepository: SolicitudRepository
 ) {
-    val isCompleted = viewModel.isCompleted.collectAsState().value
+    val viewModel: DetallesTutoriaEstudiantesViewModel = viewModel(
+        factory = DetallesTutoriaEstudiantesViewModelFactory(solicitudRepository)
+    )
+
+    val context = LocalContext.current
+    val isCompleted by viewModel.isCompleted.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    LaunchedEffect(isCompleted) {
+        if (isCompleted) {
+            Toast.makeText(context, "Tutoría completada con éxito", Toast.LENGTH_SHORT).show()
+            onBackClick() // Regresar después de completar la tutoría
+        }
+    }
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            Toast.makeText(context, "Error al completar tutoría: $it", Toast.LENGTH_LONG).show()
+            viewModel.clearErrorMessage() // Limpiar el mensaje de error después de mostrarlo
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -110,7 +131,7 @@ fun DetallesTutoriaEstudiantesScreen(
 
             if (!isCompleted) {
                 Button(
-                    onClick = { viewModel.completarTutoriaEs(tutoria) },
+                    onClick = { viewModel.completarTutoriaEs(tutoria, tutorId) },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007F39)),
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
@@ -125,22 +146,3 @@ fun DetallesTutoriaEstudiantesScreen(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun DetallesTutoriaEstudiantesScreenPreview() {
-    TutoriasUVGTheme {
-        DetallesTutoriaEstudiantesScreen(
-            onBackClick = { /*TODO*/ },
-            tutoria = TutoriasEs(
-                title = "Física 3",
-                date = "19/09/2024",
-                location = "Virtual: Enlace Zoom",
-                time = "15:00 hrs - 16:00 hrs",
-                link = "Enlace Zoom"
-            ),
-            isVirtual = true
-        )
-    }
-}
-

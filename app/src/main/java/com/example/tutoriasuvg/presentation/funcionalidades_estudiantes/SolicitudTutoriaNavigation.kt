@@ -5,7 +5,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tutoriasuvg.data.repository.SolicitudRepository
 
-
 @Composable
 fun SolicitudTutoriaNavigation(
     navController: NavController,
@@ -16,7 +15,7 @@ fun SolicitudTutoriaNavigation(
 
     SolicitudTutoriaScreen(
         viewModel = viewModel,
+        navController = navController,
         onBackClick = { navController.popBackStack() }
     )
 }
-
