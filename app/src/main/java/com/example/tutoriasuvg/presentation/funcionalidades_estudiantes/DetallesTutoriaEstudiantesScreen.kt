@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
-import com.example.tutoriasuvg.data.repository.SolicitudRepository
+import com.example.tutoriasuvg.data.repository.TutoriaRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,27 +30,31 @@ fun DetallesTutoriaEstudiantesScreen(
     tutoria: TutoriasEs,
     isVirtual: Boolean,
     tutorId: String,
-    solicitudRepository: SolicitudRepository
+    tutoriaAsignadaId: Int,
+    tutoriaRepository: TutoriaRepository
 ) {
     val viewModel: DetallesTutoriaEstudiantesViewModel = viewModel(
-        factory = DetallesTutoriaEstudiantesViewModelFactory(solicitudRepository)
+        factory = DetallesTutoriaEstudiantesViewModelFactory(tutoriaRepository)
     )
 
     val context = LocalContext.current
     val isCompleted by viewModel.isCompleted.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
+    var showConfirmationDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(isCompleted) {
         if (isCompleted) {
+            showConfirmationDialog = false
             Toast.makeText(context, "Tutoría completada con éxito", Toast.LENGTH_SHORT).show()
-            onBackClick() // Regresar después de completar la tutoría
+            onBackClick()
         }
     }
 
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             Toast.makeText(context, "Error al completar tutoría: $it", Toast.LENGTH_LONG).show()
-            viewModel.clearErrorMessage() // Limpiar el mensaje de error después de mostrarlo
+            viewModel.clearErrorMessage()
         }
     }
 
@@ -131,7 +135,7 @@ fun DetallesTutoriaEstudiantesScreen(
 
             if (!isCompleted) {
                 Button(
-                    onClick = { viewModel.completarTutoriaEs(tutoria, tutorId) },
+                    onClick = { showConfirmationDialog = true },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007F39)),
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
@@ -144,5 +148,33 @@ fun DetallesTutoriaEstudiantesScreen(
                 Text(text = "Tutoría ya completada", color = Color.Gray)
             }
         }
+    }
+
+    if (showConfirmationDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmationDialog = false },
+            title = { Text(text = "Confirmar acción") },
+            text = { Text(text = "¿Está seguro de que desea marcar esta tutoría como completada? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (tutoria.id.isNotBlank() && tutoriaAsignadaId >= 0 && tutorId.isNotBlank()) {
+                        viewModel.completarTutoria(
+                            solicitudId = tutoria.id,
+                            tutoriaAsignadaId = tutoriaAsignadaId,
+                            tutorId = tutorId
+                        )
+                    } else {
+                        Toast.makeText(context, "Error: Datos de la tutoría incompletos", Toast.LENGTH_SHORT).show()
+                    }
+                }) {
+                    Text(text = "Sí, completar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmationDialog = false }) {
+                    Text(text = "Cancelar")
+                }
+            }
+        )
     }
 }

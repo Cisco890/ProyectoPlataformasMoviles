@@ -6,7 +6,9 @@ import com.example.tutoriasuvg.data.database.AppDatabase
 import com.example.tutoriasuvg.data.model.Solicitud
 import com.example.tutoriasuvg.data.model.TutoriaAsignada
 import com.example.tutoriasuvg.data.model.Tutor
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.tasks.await
 
 class TutoriaRepository(context: Context) {
 
@@ -21,7 +23,8 @@ class TutoriaRepository(context: Context) {
     private val tutorDao = db.tutorDao()
     private val tutoriaAsignadaDao = db.tutoriaAsignadaDao()
 
-    // Funciones para la tabla de Solicitudes
+    private val firestore = FirebaseFirestore.getInstance()
+
     suspend fun insertarSolicitud(solicitud: Solicitud) {
         solicitudDao.insertSolicitud(solicitud)
     }
@@ -34,7 +37,19 @@ class TutoriaRepository(context: Context) {
         solicitudDao.updateSolicitudTutor(solicitudId, tutorId)
     }
 
-    // Funciones para la tabla de Tutores
+    suspend fun eliminarSolicitud(solicitudId: String) {
+        solicitudDao.eliminarSolicitud(solicitudId)
+    }
+
+    private suspend fun eliminarSolicitudDeFirestore(solicitudId: String) {
+        try {
+            firestore.collection("solicitudes").document(solicitudId).delete().await()
+        } catch (e: Exception) {
+            println("Error al eliminar la solicitud de Firestore: ${e.message}")
+            throw e
+        }
+    }
+
     suspend fun insertarTutor(tutor: Tutor) {
         tutorDao.insertTutor(tutor)
     }
@@ -47,7 +62,16 @@ class TutoriaRepository(context: Context) {
         return tutorDao.getTutoresByCourse(courseName)
     }
 
-    // Funciones para la tabla de Tutorías Asignadas
+    suspend fun incrementarProgresoTutor(tutorId: String, incremento: Float) {
+        val tutor = tutorDao.getTutorById(tutorId)
+        if (tutor != null) {
+            val tutorActualizado = tutor.copy(
+                completedHours = (tutor.completedHours ?: 0f) + incremento
+            )
+            tutorDao.insertTutor(tutorActualizado)
+        }
+    }
+
     suspend fun insertarTutoriaAsignada(tutoriaAsignada: TutoriaAsignada) {
         tutoriaAsignadaDao.insertTutoriaAsignada(tutoriaAsignada)
     }
@@ -55,4 +79,33 @@ class TutoriaRepository(context: Context) {
     fun obtenerTutoriasAsignadas(tutorId: String): Flow<List<TutoriaAsignada>> {
         return tutoriaAsignadaDao.getTutoriaAsignadasByTutorId(tutorId)
     }
+
+    suspend fun eliminarTutoriaAsignada(tutoriaAsignadaId: Int) {
+        tutoriaAsignadaDao.eliminarTutoriaAsignada(tutoriaAsignadaId)
+    }
+
+    suspend fun completarTutoria(
+        solicitudId: String,
+        tutoriaAsignadaId: Int,
+        tutorId: String,
+        incrementoHoras: Float = 1.3f
+    ) {
+        try {
+            println("Inicio de completarTutoria en el repositorio")
+
+            incrementarProgresoTutor(tutorId, incrementoHoras)
+            println("Horas incrementadas para el tutor $tutorId con $incrementoHoras horas")
+
+            eliminarSolicitud(solicitudId)
+            println("Solicitud con ID $solicitudId eliminada de la base de datos local")
+
+            eliminarTutoriaAsignada(tutoriaAsignadaId)
+            println("Tutoría asignada con ID $tutoriaAsignadaId eliminada de la base de datos local")
+        } catch (e: Exception) {
+            println("Error en el repositorio: ${e.message}")
+            throw e
+        }
+    }
+
+
 }

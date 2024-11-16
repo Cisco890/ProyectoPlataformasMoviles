@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.tutoriasuvg.data.repository.SolicitudRepository // Asegúrate de importar esta clase
+import com.example.tutoriasuvg.data.repository.TutoriaRepository // Cambiar a TutoriaRepository
 import com.example.tutoriasuvg.presentation.funcionalidades_estudiantes.DetallesTutoriaEstudiantesScreen
 import com.example.tutoriasuvg.presentation.funcionalidades_estudiantes.TutoriasEs
 import kotlinx.serialization.encodeToString
@@ -25,7 +25,7 @@ fun NavController.navigateToDetallesTutoriaEstudiantes(tutoria: TutoriasEs) {
 fun NavGraphBuilder.DetallesTutoriaEstudiantesNavigation(
     navController: NavController,
     tutorId: String,
-    solicitudRepository: SolicitudRepository
+    tutoriaRepository: TutoriaRepository
 ) {
     composable(
         route = DetallesTutoriaEstudiantesRoute,
@@ -35,12 +35,15 @@ fun NavGraphBuilder.DetallesTutoriaEstudiantesNavigation(
         val decodedJson = URLDecoder.decode(encodedJson, StandardCharsets.UTF_8.toString())
         val tutoria = Json.decodeFromString<TutoriasEs>(decodedJson)
 
+        val tutoriaAsignadaId = tutoria.id.toIntOrNull() ?: 0
+
         DetallesTutoriaEstudiantesScreen(
             onBackClick = { navController.popBackStack() },
             tutoria = tutoria,
             isVirtual = tutoria.link != null,
             tutorId = tutorId,
-            solicitudRepository = solicitudRepository
+            tutoriaAsignadaId = tutoriaAsignadaId,
+            tutoriaRepository = tutoriaRepository
         )
     }
 }

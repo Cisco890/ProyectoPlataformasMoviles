@@ -186,13 +186,18 @@ fun NavGraph(
             val decodedJson = URLDecoder.decode(encodedJson, StandardCharsets.UTF_8.toString())
             val tutoria = Json.decodeFromString<TutoriasEs>(decodedJson)
 
+            val tutoriaRepository = TutoriaRepository(navController.context)
+
+            val tutoriaAsignadaId = tutoria.id.toIntOrNull() ?: 0
+
             tutorId?.let {
                 DetallesTutoriaEstudiantesScreen(
                     onBackClick = { navController.popBackStack() },
                     tutoria = tutoria,
                     isVirtual = tutoria.link != null,
                     tutorId = it,
-                    solicitudRepository = solicitudRepository
+                    tutoriaAsignadaId = tutoriaAsignadaId,
+                    tutoriaRepository = tutoriaRepository
                 )
             }
         }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "280999185e5443d932ee62d415db8cf1",
+    "identityHash": "9340cfd237c8b090b98b963a7298294a",
     "entities": [
       {
         "tableName": "solicitud",
@@ -80,7 +80,7 @@
       },
       {
         "tableName": "tutor",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `courses` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `courses` TEXT NOT NULL, `completedHours` REAL NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -98,6 +98,12 @@
             "fieldPath": "courses",
             "columnName": "courses",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedHours",
+            "columnName": "completedHours",
+            "affinity": "REAL",
             "notNull": true
           }
         ],
@@ -170,7 +176,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '280999185e5443d932ee62d415db8cf1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9340cfd237c8b090b98b963a7298294a')"
     ]
   }
 }

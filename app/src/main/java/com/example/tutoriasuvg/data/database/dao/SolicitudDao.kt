@@ -21,5 +21,8 @@ interface SolicitudDao {
 
     @Query("SELECT * FROM solicitud WHERE tutorId = :tutorId")
     fun getSolicitudesByTutorId(tutorId: String): Flow<List<Solicitud>>
+
+    @Query("DELETE FROM solicitud WHERE id = :solicitudId")
+    suspend fun eliminarSolicitud(solicitudId: String)
 }
 

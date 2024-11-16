@@ -21,4 +21,7 @@ interface TutoriaAsignadaDao {
 
     @Query("SELECT * FROM tutoriaasignada WHERE tutorId = :tutorId")
     fun getTutoriaAsignadasByTutorId(tutorId: String): Flow<List<TutoriaAsignada>>
+
+    @Query("DELETE FROM tutoriaasignada WHERE id = :tutoriaAsignadaId")
+    suspend fun eliminarTutoriaAsignada(tutoriaAsignadaId: Int)
 }
