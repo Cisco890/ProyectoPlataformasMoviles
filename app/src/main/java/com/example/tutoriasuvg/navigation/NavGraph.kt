@@ -155,7 +155,13 @@ fun NavGraph(
             arguments = listOf(navArgument("tutoriaJson") { type = NavType.StringType })
         ) { backStackEntry ->
             val tutoriaJson = backStackEntry.arguments?.getString("tutoriaJson")
-            if (tutoriaJson != null) {
+            var userId by remember { mutableStateOf<String?>(null) }
+
+            LaunchedEffect(Unit) {
+                userId = sessionManager.getUserIdentifierSync()
+            }
+
+            if (tutoriaJson != null && userId != null) {
                 val decodedJson = URLDecoder.decode(tutoriaJson, StandardCharsets.UTF_8.toString())
                 val tutoria = Json.decodeFromString<Tutoria>(decodedJson)
 
@@ -167,10 +173,12 @@ fun NavGraph(
                     time = tutoria.time ?: "Hora a definir",
                     studentName = "Nombre del estudiante",
                     isVirtual = tutoria.link != null,
-                    link = tutoria.link
+                    link = tutoria.link,
+                    userId = userId!!
                 )
             }
         }
+
 
         composable(
             route = "detallesTutoriaEstudiantes/{tutoriaJson}",

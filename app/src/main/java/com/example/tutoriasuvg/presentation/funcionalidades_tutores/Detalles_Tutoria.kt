@@ -1,6 +1,5 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_tutores
 
-import DetallesTutoriaViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,12 +16,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
-import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,8 +32,9 @@ fun DetalleTutoria(
     studentName: String,
     isVirtual: Boolean,
     link: String? = null,
-    viewModel: DetallesTutoriaViewModel = viewModel()
-){
+    viewModel: DetallesTutoriaViewModel = viewModel(),
+    userId: String
+) {
     val isCompleted = viewModel.isCompleted.collectAsState().value
     Scaffold(
         topBar = {
@@ -115,7 +113,7 @@ fun DetalleTutoria(
 
             if (!isCompleted) {
                 Button(
-                    onClick = { viewModel.completarTutoria() },
+                    onClick = { viewModel.completarTutoria(userId) }, // Pass userId
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007F39)),
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
@@ -125,26 +123,8 @@ fun DetalleTutoria(
                     Text(text = "Tutoría Completada", color = Color.White, fontSize = 16.sp)
                 }
             } else {
-                Text(text = "Tutoría ya completada", color = Color.Gray)
+                Text(text = "Tutoría ya completada", color = Color.Gray, fontSize = 16.sp)
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun DetalleTutoriaPreview(){
-    TutoriasUVGTheme {
-        DetalleTutoria(
-            onBackClick = { /*TODO*/ },
-            title = "Física 3",
-            date = "19/09/2024",
-            location = "Virtual: Enlace Zoom",
-            time = "15:00 hrs - 16:00 hrs",
-            studentName = "Nombre del estudiante",
-            isVirtual = true,
-            link = "Enlace Zoom"
-        )
     }
 }

@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.Serializable
 
-// Data class to hold profile information
 data class PerfilTutorData(
     val name: String,
     val carnet: String,
@@ -24,7 +23,7 @@ data class PerfilTutorData(
 ) : Serializable
 
 private const val TAG = "PerfilTutorViewModel"
-private const val HOURS_INCREMENT = 1.30f // Increment for each completed tutorial
+private const val HOURS_INCREMENT = 1.30f
 
 class PerfilTutorViewModel(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
@@ -72,16 +71,13 @@ class PerfilTutorViewModel(
             val userId = sessionManager.getUserIdentifierSync()
             if (userId != null && _profileData.value != null) {
                 try {
-                    // Increment completedHours and recalculate progress
                     val newCompletedHours = _profileData.value!!.completedHours + HOURS_INCREMENT
                     val newProgress = calculateProgress(newCompletedHours, _profileData.value!!.totalHours)
 
-                    // Update Firestore
                     firestore.collection("users").document(userId)
                         .update("completedHours", newCompletedHours)
                         .await()
 
-                    // Update local state
                     _profileData.value = _profileData.value?.copy(
                         completedHours = newCompletedHours,
                         progress = newProgress
