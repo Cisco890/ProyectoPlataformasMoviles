@@ -4,8 +4,11 @@ import com.example.tutoriasuvg.data.model.Solicitud
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -54,16 +57,34 @@ class SolicitudRepository(
             )
     }
 
-    fun getAsignacionesParaTutor(tutorId: String): StateFlow<List<Solicitud>> {
-        return _solicitudes
-            .map { solicitudes ->
-                solicitudes.filter { it.tutorId == tutorId && !it.completed }
-            }
-            .stateIn(
-                scope = coroutineScope,
-                started = kotlinx.coroutines.flow.SharingStarted.Lazily,
-                initialValue = emptyList()
-            )
+    fun getAsignacionesParaTutor(tutorId: String): Flow<List<Solicitud>> {
+        return callbackFlow {
+            val listenerRegistration = firestore.collection("solicitudes")
+                .whereEqualTo("tutorId", tutorId)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        close(error)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+                        val solicitudes = snapshot.documents.map { document ->
+                            Solicitud(
+                                id = document.id,
+                                courseName = document.getString("courseName") ?: "Curso desconocido",
+                                date = document.getString("date"),
+                                location = document.getString("location"),
+                                time = document.getString("time"),
+                                link = document.getString("link"),
+                                completed = document.getBoolean("completed") ?: false
+                            )
+                        }
+                        trySend(solicitudes)
+                    }
+                }
+
+            awaitClose { listenerRegistration.remove() }
+        }
     }
 
     suspend fun asignarTutor(solicitud: Solicitud, tutorId: String, date: String? = null, location: String? = null, time: String? = null) {

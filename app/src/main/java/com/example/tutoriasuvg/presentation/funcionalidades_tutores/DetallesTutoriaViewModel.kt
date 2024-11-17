@@ -15,7 +15,23 @@ class DetallesTutoriaViewModel : ViewModel() {
     private val _isCompleted = MutableStateFlow(false)
     val isCompleted: StateFlow<Boolean> = _isCompleted
 
-    fun completarTutoria(userId: String) {
+    fun loadSolicitudState(solicitudId: String) {
+        viewModelScope.launch {
+            try {
+                val completed = firestore.collection("solicitudes")
+                    .document(solicitudId)
+                    .get()
+                    .await()
+                    .getBoolean("completed") ?: false
+
+                _isCompleted.value = completed
+            } catch (e: Exception) {
+                logError("Error al cargar el estado de la solicitud: ${e.message}", e)
+            }
+        }
+    }
+
+    fun completarTutoria(userId: String, solicitudId: String) {
         viewModelScope.launch {
             try {
                 val currentHours = firestore.collection("users").document(userId)
@@ -26,6 +42,10 @@ class DetallesTutoriaViewModel : ViewModel() {
 
                 firestore.collection("users").document(userId)
                     .update("completedHours", newHours)
+                    .await()
+
+                firestore.collection("solicitudes").document(solicitudId)
+                    .update("completed", true)
                     .await()
 
                 _isCompleted.value = true
@@ -40,4 +60,3 @@ class DetallesTutoriaViewModel : ViewModel() {
         exception.printStackTrace()
     }
 }
-

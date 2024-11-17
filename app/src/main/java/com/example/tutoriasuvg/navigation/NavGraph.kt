@@ -174,11 +174,11 @@ fun NavGraph(
                     studentName = "Nombre del estudiante",
                     isVirtual = tutoria.link != null,
                     link = tutoria.link,
-                    userId = userId!!
+                    userId = userId!!,
+                    solicitudId = tutoria.id
                 )
             }
         }
-
 
         composable(
             route = "detallesTutoriaEstudiantes/{tutoriaJson}",

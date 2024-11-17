@@ -11,10 +11,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Tutoria(
+    val id: String,
     val title: String,
-    val date: String,
-    val location: String,
-    val time: String,
+    val date: String?,
+    val location: String?,
+    val time: String?,
     val link: String?
 )
 
@@ -27,6 +28,7 @@ class HomePageTutoresViewModel(
         .map { solicitudes ->
             solicitudes.map { solicitud ->
                 Tutoria(
+                    id = solicitud.id,
                     title = solicitud.courseName,
                     date = solicitud.date ?: "Fecha a definir",
                     location = solicitud.location ?: "Ubicación a definir",
@@ -37,3 +39,4 @@ class HomePageTutoresViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }
+

@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,9 +34,15 @@ fun DetalleTutoria(
     isVirtual: Boolean,
     link: String? = null,
     viewModel: DetallesTutoriaViewModel = viewModel(),
-    userId: String
+    userId: String,
+    solicitudId: String
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.loadSolicitudState(solicitudId)
+    }
+
     val isCompleted = viewModel.isCompleted.collectAsState().value
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -113,7 +120,7 @@ fun DetalleTutoria(
 
             if (!isCompleted) {
                 Button(
-                    onClick = { viewModel.completarTutoria(userId) }, // Pass userId
+                    onClick = { viewModel.completarTutoria(userId, solicitudId) }, // Pass userId and solicitudId
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007F39)),
                     shape = RoundedCornerShape(50),
                     modifier = Modifier

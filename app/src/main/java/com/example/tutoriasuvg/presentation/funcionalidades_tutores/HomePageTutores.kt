@@ -62,9 +62,9 @@ fun HomePageTutores(
                 items(tutorias) { tutoria ->
                     CardTutoria(
                         title = tutoria.title,
-                        date = tutoria.date,
-                        location = tutoria.location,
-                        time = tutoria.time,
+                        date = tutoria.date ?: "Fecha no definida",
+                        location = tutoria.location ?: "Ubicación no definida",
+                        time = tutoria.time ?: "Hora no definida",
                         link = tutoria.link,
                         onClick = { onTutoriaClick(tutoria) }
                     )

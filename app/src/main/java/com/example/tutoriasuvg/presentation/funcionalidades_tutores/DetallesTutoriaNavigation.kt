@@ -32,7 +32,9 @@ fun DetallesTutoriaNavigation(
             studentName = "Nombre del Estudiante",
             isVirtual = tutoria.link != null,
             link = tutoria.link,
-            userId = userId!!
+            userId = userId!!,
+            solicitudId = tutoria.id
         )
     }
 }
+
