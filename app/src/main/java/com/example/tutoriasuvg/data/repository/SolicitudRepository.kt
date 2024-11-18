@@ -4,13 +4,7 @@ import com.example.tutoriasuvg.data.model.Solicitud
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -23,99 +17,104 @@ class SolicitudRepository(
     val solicitudes: StateFlow<List<Solicitud>> = _solicitudes
 
     init {
-        observeSolicitudesInRealTime()
+        observeSolicitudesEnTiempoReal()
     }
 
-    private fun observeSolicitudesInRealTime() {
-        firestore.collection("solicitudes").addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                error.printStackTrace()
-                return@addSnapshotListener
-            }
-            snapshot?.let {
-                val solicitudList = it.documents.mapNotNull { doc -> doc.toObject(Solicitud::class.java) }
-                coroutineScope.launch {
-                    _solicitudes.emit(solicitudList)
+    private fun observeSolicitudesEnTiempoReal() {
+        firestore.collection("solicitudes")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    error.printStackTrace()
+                    return@addSnapshotListener
+                }
+
+                snapshot?.let {
+                    val solicitudList = it.documents.mapNotNull { doc ->
+                        doc.toObject(Solicitud::class.java)?.copy(id = doc.id)
+                    }
+                    coroutineScope.launch {
+                        _solicitudes.emit(solicitudList)
+                    }
                 }
             }
+    }
+
+    fun obtenerTodasLasSolicitudes(): Flow<List<Solicitud>> = _solicitudes
+
+    fun obtenerSolicitudesParaEstudiante(studentId: String): Flow<List<Solicitud>> {
+        return _solicitudes.map { solicitudes ->
+            solicitudes.filter { it.studentId == studentId && !it.completed }
         }
     }
 
-    fun getAllSolicitudes(): StateFlow<List<Solicitud>> {
-        return solicitudes
-    }
-
-    fun getAsignacionesParaEstudiante(): StateFlow<List<Solicitud>> {
-        return _solicitudes
-            .map { solicitudes ->
-                solicitudes.filter { it.tutorId != null && !it.completed }
-            }
-            .stateIn(
-                scope = coroutineScope,
-                started = kotlinx.coroutines.flow.SharingStarted.Lazily,
-                initialValue = emptyList()
-            )
-    }
-
-    fun getAsignacionesParaTutor(tutorId: String): Flow<List<Solicitud>> {
-        return callbackFlow {
-            val listenerRegistration = firestore.collection("solicitudes")
-                .whereEqualTo("tutorId", tutorId)
-                .addSnapshotListener { snapshot, error ->
-                    if (error != null) {
-                        close(error)
-                        return@addSnapshotListener
-                    }
-
-                    if (snapshot != null) {
-                        val solicitudes = snapshot.documents.map { document ->
-                            Solicitud(
-                                id = document.id,
-                                courseName = document.getString("courseName") ?: "Curso desconocido",
-                                date = document.getString("date"),
-                                location = document.getString("location"),
-                                time = document.getString("time"),
-                                link = document.getString("link"),
-                                completed = document.getBoolean("completed") ?: false
-                            )
-                        }
-                        trySend(solicitudes)
-                    }
-                }
-
-            awaitClose { listenerRegistration.remove() }
+    fun obtenerSolicitudesParaTutor(tutorId: String): Flow<List<Solicitud>> {
+        return _solicitudes.map { solicitudes ->
+            solicitudes.filter { it.tutorId == tutorId }
         }
     }
 
-    suspend fun asignarTutor(solicitud: Solicitud, tutorId: String, date: String? = null, location: String? = null, time: String? = null) {
+    suspend fun asignarTutor(
+        solicitud: Solicitud,
+        tutorId: String,
+        date: String? = null,
+        location: String? = null,
+        time: String? = null
+    ) {
         try {
             val updateData = mutableMapOf<String, Any>(
                 "tutorId" to tutorId
-            )
-            date?.let { updateData["date"] = it }
-            location?.let { updateData["location"] = it }
-            time?.let { updateData["time"] = it }
+            ).apply {
+                date?.let { this["date"] = it }
+                location?.let { this["location"] = it }
+                time?.let { this["time"] = it }
+            }
 
             firestore.collection("solicitudes").document(solicitud.id).update(updateData).await()
 
-            _solicitudes.value = _solicitudes.value.map { s ->
-                if (s.id == solicitud.id) s.copy(tutorId = tutorId, date = date, location = location, time = time) else s
+            _solicitudes.update { current ->
+                current.map { existing ->
+                    if (existing.id == solicitud.id) {
+                        existing.copy(
+                            tutorId = tutorId,
+                            date = date,
+                            location = location,
+                            time = time
+                        )
+                    } else existing
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    suspend fun sendTutoriaRequest(courseName: String, days: List<String>, shift: String) {
-        val solicitud = Solicitud(
-            courseName = courseName,
-            days = days,
-            shift = shift
-        )
+    suspend fun enviarSolicitudTutor(
+        courseName: String,
+        days: List<String>,
+        shift: String,
+        studentId: String
+    ) {
         try {
-            val newDocRef = firestore.collection("solicitudes").add(solicitud).await()
-            val updatedSolicitud = solicitud.copy(id = newDocRef.id)
-            _solicitudes.value = _solicitudes.value + updatedSolicitud
+            val existing = firestore.collection("solicitudes")
+                .whereEqualTo("courseName", courseName)
+                .whereEqualTo("shift", shift)
+                .whereEqualTo("studentId", studentId)
+                .get()
+                .await()
+
+            if (existing.isEmpty) {
+                val nuevaSolicitud = Solicitud(
+                    courseName = courseName,
+                    days = days,
+                    shift = shift,
+                    studentId = studentId,
+                    tutorId = null,
+                    completed = false
+                )
+                firestore.collection("solicitudes").add(nuevaSolicitud).await()
+            } else {
+                println("Ya existe una solicitud para este curso y estudiante.")
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -129,23 +128,26 @@ class SolicitudRepository(
             firestore.runTransaction { transaction ->
                 val snapshot = transaction.get(tutorDocRef)
                 val currentHours = snapshot.getDouble("completedHours") ?: 0.0
-                val updatedHours = currentHours + 1.30
-                transaction.update(tutorDocRef, "completedHours", updatedHours)
+                transaction.update(tutorDocRef, "completedHours", currentHours + 1.5)
             }.await()
 
-            _solicitudes.value = _solicitudes.value.map { solicitud ->
-                if (solicitud.id == tutoriaId) solicitud.copy(completed = true) else solicitud
+            _solicitudes.update { current ->
+                current.map { solicitud ->
+                    if (solicitud.id == tutoriaId) solicitud.copy(completed = true) else solicitud
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    suspend fun eliminarTutoriaEstudiante(tutoriaId: String) {
+    suspend fun eliminarSolicitud(tutoriaId: String) {
         try {
             firestore.collection("solicitudes").document(tutoriaId).delete().await()
 
-            _solicitudes.value = _solicitudes.value.filter { it.id != tutoriaId }
+            _solicitudes.update { current ->
+                current.filter { it.id != tutoriaId }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }

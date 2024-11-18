@@ -52,7 +52,6 @@ fun VerProgresosScreen(viewModel: VerProgresosViewModel = viewModel(),onBackClic
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Progresos de los tutores
             progresos.forEach { progreso ->
                 ProgresoCard(nombreTutor = progreso.nombreTutor, horasRealizadas = progreso.horasRealizadas)
                 Spacer(modifier = Modifier.height(16.dp))
@@ -93,7 +92,6 @@ fun ProgresoCard(nombreTutor: String, horasRealizadas: String) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Información del progreso
             Column(
                 modifier = Modifier.weight(1f)
             ) {

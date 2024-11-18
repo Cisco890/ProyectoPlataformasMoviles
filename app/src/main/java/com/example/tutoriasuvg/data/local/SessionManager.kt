@@ -34,7 +34,6 @@ class SessionManager(private val context: Context) {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    // Método para guardar la sesión del usuario en DataStore
     suspend fun saveUserSession(userType: String, email: String, identifier: String, isUsingCarnet: Boolean) {
         Log.d(TAG, "Saving session: userType=$userType, email=$email, identifier=$identifier, isUsingCarnet=$isUsingCarnet")
         context.dataStore.edit { preferences ->
@@ -45,8 +44,6 @@ class SessionManager(private val context: Context) {
         }
     }
 
-
-    // Método para borrar la sesión del usuario en DataStore y cerrar sesión en FirebaseAuth
     suspend fun clearSession() {
         auth.signOut()
         context.dataStore.edit { preferences ->
@@ -55,14 +52,12 @@ class SessionManager(private val context: Context) {
         }
     }
 
-    // Verifica si el usuario está logueado en FirebaseAuth
     fun isUserLoggedIn(): Boolean {
         val loggedIn = auth.currentUser != null
         Log.d(TAG, "FirebaseAuth user logged in: $loggedIn")
         return loggedIn
     }
 
-    // Recupera el tipo de usuario de forma síncrona
     suspend fun getUserTypeSync(): String {
         val type = context.dataStore.data.map { preferences ->
             preferences[USER_TYPE_KEY] ?: DEFAULT_USER_TYPE
@@ -71,7 +66,6 @@ class SessionManager(private val context: Context) {
         return type
     }
 
-    // Recupera el email de usuario de forma síncrona
     suspend fun getUserEmailSync(): String {
         val email = context.dataStore.data.map { preferences ->
             preferences[USER_EMAIL_KEY] ?: DEFAULT_EMAIL
@@ -80,7 +74,6 @@ class SessionManager(private val context: Context) {
         return email
     }
 
-    // Recupera el identificador de usuario de forma síncrona
     suspend fun getUserIdentifierSync(): String {
         val identifier = context.dataStore.data.map { preferences ->
             preferences[USER_IDENTIFIER_KEY] ?: DEFAULT_IDENTIFIER
@@ -89,7 +82,6 @@ class SessionManager(private val context: Context) {
         return identifier
     }
 
-    // Recupera si el usuario está usando carnet de forma síncrona
     suspend fun isUsingCarnetSync(): Boolean {
         val isCarnet = context.dataStore.data.map { preferences ->
             preferences[IS_USING_CARNET_KEY] ?: DEFAULT_IS_USING_CARNET

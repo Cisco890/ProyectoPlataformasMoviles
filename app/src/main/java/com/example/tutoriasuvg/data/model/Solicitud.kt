@@ -10,6 +10,7 @@ data class Solicitud(
     val days: List<String> = emptyList(),
     val shift: String = "",
     val tutorId: String? = null,
+    val studentId: String? = null,
     val date: String? = null,
     val location: String? = null,
     val time: String? = null,

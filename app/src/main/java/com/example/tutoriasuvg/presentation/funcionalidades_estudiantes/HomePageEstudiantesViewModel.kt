@@ -20,10 +20,12 @@ data class TutoriasEs(
 )
 
 class HomePageEstudiantesViewModel(
-    private val solicitudRepository: SolicitudRepository
+    private val solicitudRepository: SolicitudRepository,
+    studentId: String
 ) : ViewModel() {
 
-    val tutorias: StateFlow<List<TutoriasEs>> = solicitudRepository.getAsignacionesParaEstudiante()
+    val tutorias: StateFlow<List<TutoriasEs>> = solicitudRepository
+        .obtenerSolicitudesParaEstudiante(studentId)
         .map { solicitudes ->
             solicitudes.map { solicitud ->
                 TutoriasEs(

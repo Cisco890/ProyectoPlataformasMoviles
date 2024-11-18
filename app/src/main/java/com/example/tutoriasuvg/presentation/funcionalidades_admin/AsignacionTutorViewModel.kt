@@ -8,7 +8,7 @@ import com.example.tutoriasuvg.data.repository.SolicitudRepository
 import com.example.tutoriasuvg.data.repository.TutorRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class AsignacionTutorViewModel(
@@ -24,8 +24,9 @@ class AsignacionTutorViewModel(
 
     fun cargarSolicitudesPendientes() {
         viewModelScope.launch {
-            val result = solicitudRepository.getAllSolicitudes().first()
-            _solicitudes.value = result
+            solicitudRepository.obtenerTodasLasSolicitudes().collectLatest { result ->
+                _solicitudes.value = result
+            }
         }
     }
 

@@ -46,8 +46,6 @@ fun NotificacionesScreen(
     var selectedLocation by remember { mutableStateOf("") }
     var selectedTutorId by remember { mutableStateOf<String?>(null) }
 
-    val context = LocalContext.current
-
     LaunchedEffect(Unit) {
         viewModel.cargarNotificaciones()
     }
@@ -71,22 +69,35 @@ fun NotificacionesScreen(
             )
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(notificaciones) { notificacion ->
-                NotificacionCard(
-                    notificacion = notificacion,
-                    onAsignarTutorClick = {
-                        currentSolicitud = notificacion.solicitud
-                        viewModel.obtenerTutoresParaCurso(notificacion.titulo)
-                        showDialog = true
-                    }
-                )
+        if (notificaciones.isEmpty()) {
+            // Mostrar mensaje si no hay notificaciones
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "No hay notificaciones disponibles", fontSize = 16.sp, color = Color.Gray)
+            }
+        } else {
+            // Mostrar lista de notificaciones
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(notificaciones) { notificacion ->
+                    NotificacionCard(
+                        notificacion = notificacion,
+                        onAsignarTutorClick = {
+                            currentSolicitud = notificacion.solicitud
+                            viewModel.obtenerTutoresParaCurso(notificacion.titulo)
+                            showDialog = true
+                        }
+                    )
+                }
             }
         }
 
@@ -115,7 +126,7 @@ fun NotificacionesScreen(
                                 time = "$selectedStartTime - $selectedEndTime"
                             )
                         }
-                        // Limpiar los campos después de la asignación
+                        // Limpiar datos después de asignar
                         selectedTutorId = null
                         selectedDate = ""
                         selectedStartTime = ""
@@ -147,12 +158,13 @@ fun AsignarTutorDialog(
     onConfirm: () -> Unit
 ) {
     val context = LocalContext.current
+
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = { Text("Seleccionar Tutor") },
+        title = { Text("Asignar Tutor") },
         text = {
             Column {
-                // Selector de tutores con Checkbox
+                // Lista de tutores disponibles
                 tutoresDisponibles.forEach { tutor ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -173,7 +185,7 @@ fun AsignarTutorDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Selector de fecha
+                // Campos para fecha, horario y ubicación
                 OutlinedTextField(
                     value = selectedDate,
                     onValueChange = onDateChange,
@@ -194,7 +206,6 @@ fun AsignarTutorDialog(
                         }
                 )
 
-                // Selector de hora de inicio
                 OutlinedTextField(
                     value = selectedStartTime,
                     onValueChange = onStartTimeChange,
@@ -216,7 +227,6 @@ fun AsignarTutorDialog(
                         }
                 )
 
-                // Selector de hora de fin
                 OutlinedTextField(
                     value = selectedEndTime,
                     onValueChange = onEndTimeChange,
@@ -238,7 +248,6 @@ fun AsignarTutorDialog(
                         }
                 )
 
-                // Campo de ubicación
                 OutlinedTextField(
                     value = selectedLocation,
                     onValueChange = onLocationChange,

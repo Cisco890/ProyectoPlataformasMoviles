@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SolicitudTutoriaViewModel(
-    private val solicitudRepository: SolicitudRepository
+    private val solicitudRepository: SolicitudRepository,
+    private val studentId: String
 ) : ViewModel() {
 
     private val _courseName = MutableStateFlow("")
@@ -44,7 +45,9 @@ class SolicitudTutoriaViewModel(
 
     fun selectShift(shift: String) {
         _selectedShift.update { currentShifts ->
-            currentShifts.mapValues { (key, _) -> key == shift }
+            currentShifts.mapValues { (key, _) ->
+                key == shift
+            }
         }
     }
 
@@ -58,13 +61,18 @@ class SolicitudTutoriaViewModel(
         }
 
         viewModelScope.launch {
-            solicitudRepository.sendTutoriaRequest(
-                courseName = _courseName.value,
-                days = selectedDaysList,
-                shift = selectedShift
-            )
-            _message.value = "Solicitud enviada exitosamente"
-            clearForm()
+            try {
+                solicitudRepository.enviarSolicitudTutor(
+                    courseName = _courseName.value,
+                    days = selectedDaysList,
+                    shift = selectedShift,
+                    studentId = studentId
+                )
+                _message.value = "Solicitud enviada exitosamente"
+                clearForm()
+            } catch (e: Exception) {
+                _message.value = "Error al enviar la solicitud: ${e.message}"
+            }
         }
     }
 

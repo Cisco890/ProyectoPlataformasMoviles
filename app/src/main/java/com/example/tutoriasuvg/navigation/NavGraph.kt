@@ -85,11 +85,16 @@ fun NavGraph(
 
         // Pantallas de estudiantes
         composable("homePageEstudiantes") {
+            val sessionManager = SessionManager(navController.context)
+            val solicitudRepository = SolicitudRepository()
+
             HomePageEstudiantesNavigation(
                 navController = navController,
+                sessionManager = sessionManager,
                 solicitudRepository = solicitudRepository
             )
         }
+
 
         composable("perfil_estudiante") {
             PerfilEstudianteNavigation(
@@ -184,31 +189,17 @@ fun NavGraph(
             route = "detallesTutoriaEstudiantes/{tutoriaJson}",
             arguments = listOf(navArgument("tutoriaJson") { type = NavType.StringType })
         ) { backStackEntry ->
-            var tutorId by remember { mutableStateOf<String?>(null) }
-
-            LaunchedEffect(Unit) {
-                tutorId = sessionManager.getUserIdentifierSync()
-            }
-
             val encodedJson = backStackEntry.arguments?.getString("tutoriaJson") ?: return@composable
             val decodedJson = URLDecoder.decode(encodedJson, StandardCharsets.UTF_8.toString())
             val tutoria = Json.decodeFromString<TutoriasEs>(decodedJson)
 
-            val tutoriaRepository = TutoriaRepository(navController.context)
-
-            val tutoriaAsignadaId = tutoria.id.toIntOrNull() ?: 0
-
-            tutorId?.let {
-                DetallesTutoriaEstudiantesScreen(
-                    onBackClick = { navController.popBackStack() },
-                    tutoria = tutoria,
-                    isVirtual = tutoria.link != null,
-                    tutorId = it,
-                    tutoriaAsignadaId = tutoriaAsignadaId,
-                    tutoriaRepository = tutoriaRepository
-                )
-            }
+            DetallesTutoriaEstudiantesScreen(
+                onBackClick = { navController.popBackStack() },
+                tutoria = tutoria,
+                isVirtual = tutoria.link != null
+            )
         }
+
 
         // Pantallas de administrador
         composable(HomePageAdminDestination().route) {

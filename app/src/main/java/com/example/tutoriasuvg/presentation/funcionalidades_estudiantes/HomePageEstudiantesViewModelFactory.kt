@@ -5,14 +5,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.tutoriasuvg.data.repository.SolicitudRepository
 
 class HomePageEstudiantesViewModelFactory(
-    private val solicitudRepository: SolicitudRepository
+    private val solicitudRepository: SolicitudRepository,
+    private val studentId: String
 ) : ViewModelProvider.Factory {
-
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomePageEstudiantesViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return HomePageEstudiantesViewModel(solicitudRepository) as T
+            return HomePageEstudiantesViewModel(solicitudRepository, studentId) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+

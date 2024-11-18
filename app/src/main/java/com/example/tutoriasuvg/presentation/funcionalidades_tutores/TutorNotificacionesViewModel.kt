@@ -14,7 +14,8 @@ class TutorNotificacionesViewModel(
     tutorId: String
 ) : ViewModel() {
 
-    val tutorAsignaciones: StateFlow<List<TutoriaAsignada>> = solicitudRepository.getAsignacionesParaTutor(tutorId)
+    val tutorAsignaciones: StateFlow<List<TutoriaAsignada>> = solicitudRepository
+        .obtenerSolicitudesParaTutor(tutorId)
         .map { solicitudes ->
             solicitudes.map { solicitud ->
                 TutoriaAsignada(
@@ -25,5 +26,6 @@ class TutorNotificacionesViewModel(
                     location = solicitud.location ?: "Ubicación a definir"
                 )
             }
-        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 }

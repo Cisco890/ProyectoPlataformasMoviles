@@ -60,21 +60,17 @@ fun ForgotPasswordScreen(onBackToLogin: () -> Unit) {
 
                 Button(
                     onClick = {
-                        // Validar que el campo de correo no esté vacío
                         if (email.isNotEmpty()) {
                             auth.sendPasswordResetEmail(email)
                                 .addOnCompleteListener { task ->
                                     if (task.isSuccessful) {
-                                        // Muestra un mensaje de éxito al usuario
                                         Toast.makeText(
                                             context,
                                             "Correo de recuperación enviado. Revisa tu bandeja de entrada.",
                                             Toast.LENGTH_LONG
                                         ).show()
-                                        // Regresa a la pantalla de inicio de sesión
                                         onBackToLogin()
                                     } else {
-                                        // Muestra un mensaje de error si falla
                                         Toast.makeText(
                                             context,
                                             "Error al enviar el correo de recuperación.",
@@ -83,7 +79,6 @@ fun ForgotPasswordScreen(onBackToLogin: () -> Unit) {
                                     }
                                 }
                         } else {
-                            // Muestra un mensaje de advertencia si el campo está vacío
                             Toast.makeText(
                                 context,
                                 "Por favor ingresa tu correo institucional.",

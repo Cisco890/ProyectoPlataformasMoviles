@@ -24,12 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
+import com.example.tutoriasuvg.data.local.SessionManager
 import com.example.tutoriasuvg.data.repository.SolicitudRepository
 import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
 
 @Composable
 fun HomePageEstudiantes(
-    viewModel: HomePageEstudiantesViewModel = viewModel(),
+    viewModel: HomePageEstudiantesViewModel,
     onTutoriaEstudianteClick: (TutoriasEs) -> Unit,
     onPerfilClick: () -> Unit,
     onSolicitudTutoriaClick: () -> Unit
@@ -50,6 +51,7 @@ fun HomePageEstudiantes(
                     if (!isNavigating) {
                         isNavigating = true
                         onTutoriaEstudianteClick(tutoria)
+                        isNavigating = false // Reset after navigation
                     }
                 },
                 paddingValues = paddingValues
@@ -57,6 +59,7 @@ fun HomePageEstudiantes(
         }
     }
 }
+
 
 @Composable
 fun TutoriasList(
@@ -165,7 +168,7 @@ fun TutorInfo(
         Text(text = date, fontSize = 14.sp, color = Color.Black)
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = if (link != null) "$location$link" else location,
+            text = if (link != null) "$location $link" else location,
             fontSize = 14.sp,
             color = if (link != null) Color(0xFF007F39) else Color.Black,
             fontWeight = if (link != null) FontWeight.Bold else FontWeight.Normal
@@ -228,21 +231,6 @@ fun BottomNavigationBar(onSolicitudTutoriaClick: () -> Unit) {
                 unselectedTextColor = Color.White,
                 indicatorColor = Color.Transparent
             )
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomePageEstudiantesPreview() {
-    val mockSolicitudRepository = SolicitudRepository()
-
-    TutoriasUVGTheme {
-        HomePageEstudiantes(
-            viewModel = HomePageEstudiantesViewModel(solicitudRepository = mockSolicitudRepository),
-            onTutoriaEstudianteClick = { /* Acción al hacer clic en tutoría */ },
-            onPerfilClick = { /* Acción al hacer clic en perfil */ },
-            onSolicitudTutoriaClick = { /* Acción al hacer clic en solicitud de tutoría */ }
         )
     }
 }

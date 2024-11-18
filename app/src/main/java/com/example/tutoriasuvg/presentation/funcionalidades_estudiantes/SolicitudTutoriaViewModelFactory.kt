@@ -5,14 +5,17 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.tutoriasuvg.data.repository.SolicitudRepository
 
 class SolicitudTutoriaViewModelFactory(
-    private val solicitudRepository: SolicitudRepository
+    private val solicitudRepository: SolicitudRepository,
+    private val studentId: String
 ) : ViewModelProvider.Factory {
-
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SolicitudTutoriaViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return SolicitudTutoriaViewModel(solicitudRepository) as T
+            return SolicitudTutoriaViewModel(
+                solicitudRepository = solicitudRepository,
+                studentId = studentId
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+

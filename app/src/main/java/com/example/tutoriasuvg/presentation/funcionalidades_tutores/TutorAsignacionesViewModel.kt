@@ -14,7 +14,7 @@ class TutorAsignacionesViewModel(
 ) : ViewModel() {
 
     fun obtenerAsignacionesParaTutor(tutorId: String): StateFlow<List<TutoriaAsignada>> {
-        return solicitudRepository.getAsignacionesParaTutor(tutorId)
+        return solicitudRepository.obtenerSolicitudesParaTutor(tutorId)
             .map { solicitudes ->
                 solicitudes.map { solicitud ->
                     TutoriaAsignada(

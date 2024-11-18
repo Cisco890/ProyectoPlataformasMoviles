@@ -38,14 +38,15 @@ class NotificacionesViewModel(
 
     fun cargarNotificaciones() {
         viewModelScope.launch {
-            solicitudRepository.getAllSolicitudes().collectLatest { solicitudes ->
+            // Usar el nombre correcto del método
+            solicitudRepository.obtenerTodasLasSolicitudes().collectLatest { solicitudes ->
                 val nuevasNotificaciones = solicitudes.map { solicitud ->
                     Notificacion(
                         titulo = solicitud.courseName,
                         fecha = solicitud.date ?: "Fecha a definir",
                         modalidad = solicitud.shift,
                         hora = solicitud.time ?: "Hora a definir",
-                        estado = "Pendiente",
+                        estado = if (solicitud.tutorId == null) "Pendiente" else "Asignada",
                         tutorId = solicitud.tutorId,
                         solicitud = solicitud
                     )
@@ -62,7 +63,6 @@ class NotificacionesViewModel(
         }
     }
 
-    // Actualizamos esta función para aceptar fecha, ubicación y hora
     fun asignarTutor(solicitud: Solicitud, tutorId: String, date: String?, location: String?, time: String?) {
         viewModelScope.launch {
             solicitudRepository.asignarTutor(

@@ -24,7 +24,8 @@ class HomePageTutoresViewModel(
     tutorId: String
 ) : ViewModel() {
 
-    val tutorias: StateFlow<List<Tutoria>> = solicitudRepository.getAsignacionesParaTutor(tutorId)
+    val tutorias: StateFlow<List<Tutoria>> = solicitudRepository
+        .obtenerSolicitudesParaTutor(tutorId)
         .map { solicitudes ->
             solicitudes.map { solicitud ->
                 Tutoria(
@@ -39,4 +40,3 @@ class HomePageTutoresViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }
-

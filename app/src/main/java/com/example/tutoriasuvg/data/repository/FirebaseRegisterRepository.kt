@@ -11,7 +11,6 @@ class FirebaseRegisterRepository(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
 
-    // Función para registrar un nuevo usuario
     suspend fun registerUser(
         email: String,
         password: String,
@@ -26,11 +25,9 @@ class FirebaseRegisterRepository(
         }
 
         return try {
-            // Crear usuario con email y contraseña
             auth.createUserWithEmailAndPassword(email, password).await()
             val userId = auth.currentUser?.uid ?: throw Exception("Error al obtener ID del usuario después de registrar")
 
-            // Guardar información básica del usuario
             val userData = mapOf(
                 "name" to name,
                 "email" to email,
@@ -39,7 +36,6 @@ class FirebaseRegisterRepository(
                 "year" to year
             )
 
-            // Registrar los datos básicos en Firestore
             firestore.collection("users").document(userId).set(userData).await()
             Result.success(userId)
         } catch (e: FirebaseAuthException) {
@@ -51,7 +47,6 @@ class FirebaseRegisterRepository(
         }
     }
 
-    // Función para registrar los datos de un tutor
     suspend fun registerTutorData(
         userId: String,
         hours: Int,
