@@ -37,13 +37,12 @@ fun NavGraph(
 ) {
     val solicitudRepository = SolicitudRepository()
     val tutorRepository = TutorRepository()
-    val tutoriasRepository = TutoriasRepository()
 
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        // Navegación de Login
+        // Login Navigation
         loginNavigation(
             loginViewModelFactory = loginViewModelFactory,
             onNavigateToRegister = onNavigateToRegister,
@@ -56,7 +55,7 @@ fun NavGraph(
                     "tutor" -> navController.navigate("homePageTutores") {
                         popUpTo(LoginDestination.route) { inclusive = true }
                     }
-                    "admin" -> navController.navigate(HomePageAdminDestination().route) {
+                    "admin" -> navController.navigate("homePageAdmin") {
                         popUpTo(LoginDestination.route) { inclusive = true }
                     }
                     else -> navController.navigate(LoginDestination.route)
@@ -64,7 +63,7 @@ fun NavGraph(
             }
         )
 
-        // Pantallas adicionales de registro y recuperación de contraseña
+        // Registration and Password Recovery Navigation
         registerNavigation(
             onBackToLogin = {
                 navController.navigate(LoginDestination.route) {
@@ -83,18 +82,14 @@ fun NavGraph(
 
         forgotPasswordNavigation(onBackToLogin = { navController.popBackStack() })
 
-        // Pantallas de estudiantes
+        // Student Navigation
         composable("homePageEstudiantes") {
-            val sessionManager = SessionManager(navController.context)
-            val solicitudRepository = SolicitudRepository()
-
             HomePageEstudiantesNavigation(
                 navController = navController,
                 sessionManager = sessionManager,
                 solicitudRepository = solicitudRepository
             )
         }
-
 
         composable("perfil_estudiante") {
             PerfilEstudianteNavigation(
@@ -111,6 +106,7 @@ fun NavGraph(
             )
         }
 
+        // Tutor Navigation
         composable("perfil_tutor") {
             var identifier by remember { mutableStateOf<String?>(null) }
             var isUsingCarnet by remember { mutableStateOf<Boolean?>(null) }
@@ -137,7 +133,6 @@ fun NavGraph(
             }
         }
 
-        // Pantallas de tutor
         composable("homePageTutores") {
             var tutorId by remember { mutableStateOf<String?>(null) }
 
@@ -154,7 +149,24 @@ fun NavGraph(
             }
         }
 
-        // Nueva ruta para "detalles_tutoria"
+        // Admin Navigation
+        composable("homePageAdmin") {
+            HomePageAdminNavigation(
+                navController = navController,
+                solicitudRepository = solicitudRepository,
+                tutorRepository = tutorRepository
+            )
+        }
+
+        composable(route = PerfilAdminDestination().route) {
+            PerfilAdminNavigation(
+                navController = navController,
+                loginRepository = loginRepository,
+                sessionManager = sessionManager
+            )
+        }
+
+        // Additional Screens
         composable(
             route = "detalles_tutoria/{tutoriaJson}",
             arguments = listOf(navArgument("tutoriaJson") { type = NavType.StringType })
@@ -197,35 +209,6 @@ fun NavGraph(
                 onBackClick = { navController.popBackStack() },
                 tutoria = tutoria,
                 isVirtual = tutoria.link != null
-            )
-        }
-
-
-        // Pantallas de administrador
-        composable(HomePageAdminDestination().route) {
-            HomePageAdminNavigation(
-                navController = navController,
-                tutoriasRepository = tutoriasRepository
-            )
-        }
-
-        composable(route = PerfilAdminDestination().route) {
-            PerfilAdminNavigation(
-                navController = navController,
-                loginRepository = loginRepository,
-                sessionManager = sessionManager
-            )
-        }
-
-        composable(route = VerProgresosDestination().route) {
-            VerProgresosNavigation(navController = navController)
-        }
-
-        composable(route = NotificacionesDestination().route) {
-            NotificacionesNavigation(
-                navController = navController,
-                solicitudRepository = solicitudRepository,
-                tutorRepository = tutorRepository
             )
         }
     }

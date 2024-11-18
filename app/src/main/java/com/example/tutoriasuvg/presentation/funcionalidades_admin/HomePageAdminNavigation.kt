@@ -2,25 +2,22 @@ package com.example.tutoriasuvg.presentation.funcionalidades_admin
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.example.tutoriasuvg.data.repository.TutoriasRepository
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class HomePageAdminDestination(val route: String = "homePageAdmin")
+import com.example.tutoriasuvg.data.repository.SolicitudRepository
+import com.example.tutoriasuvg.data.repository.TutorRepository
+import com.example.tutoriasuvg.presentation.funcionalidades_admin.HomePageAdmin
 
 @Composable
-fun HomePageAdminNavigation(navController: NavController, tutoriasRepository: TutoriasRepository) {
+fun HomePageAdminNavigation(
+    navController: NavController,
+    solicitudRepository: SolicitudRepository,
+    tutorRepository: TutorRepository
+) {
+    val viewModel = NotificacionesViewModel(solicitudRepository, tutorRepository)
+
     HomePageAdmin(
-        tutoriasRepository = tutoriasRepository,
+        viewModel = viewModel,
         onProfileClick = {
             navController.navigate(PerfilAdminDestination().route)
-        },
-        onVerProgresosClick = {
-            navController.navigate(VerProgresosDestination().route)
-        },
-        onNotificacionesClick = {
-            navController.navigate(NotificacionesDestination().route)
         }
     )
 }
-

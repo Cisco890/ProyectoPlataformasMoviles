@@ -10,7 +10,6 @@ import com.example.tutoriasuvg.data.repository.FirebaseLoginRepository
 import com.example.tutoriasuvg.data.repository.FirebaseRegisterRepository
 import com.example.tutoriasuvg.navigation.NavGraph
 import com.example.tutoriasuvg.presentation.forgotpassword.ForgotPasswordDestination
-import com.example.tutoriasuvg.presentation.funcionalidades_admin.HomePageAdminDestination
 import com.example.tutoriasuvg.presentation.login.LoadingScreen
 import com.example.tutoriasuvg.presentation.login.LoginDestination
 import com.example.tutoriasuvg.presentation.login.LoginViewModelFactory
@@ -44,11 +43,11 @@ class MainActivity : ComponentActivity() {
                                 val userTypeResult = loginRepository.getUserType(userId)
                                 userTypeResult.fold(
                                     onSuccess = { userType ->
-                                        delay(500) // Retraso de 500 ms
+                                        delay(500)
                                         startDestination = when (userType) {
                                             "student" -> "homePageEstudiantes"
                                             "tutor" -> "homePageTutores"
-                                            "admin" -> HomePageAdminDestination().route
+                                            "admin" -> "homePageAdmin"
                                             else -> LoginDestination.route
                                         }
                                     },
@@ -77,7 +76,7 @@ class MainActivity : ComponentActivity() {
                             val destination = when (userType) {
                                 "student" -> "homePageEstudiantes"
                                 "tutor" -> "homePageTutores"
-                                "admin" -> HomePageAdminDestination().route
+                                "admin" -> "homePageAdmin"
                                 else -> LoginDestination.route
                             }
 

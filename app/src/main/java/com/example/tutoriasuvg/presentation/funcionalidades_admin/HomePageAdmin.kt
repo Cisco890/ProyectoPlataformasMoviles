@@ -1,206 +1,126 @@
 package com.example.tutoriasuvg.presentation.funcionalidades_admin
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tutoriasuvg.R
 import com.example.tutoriasuvg.data.model.Solicitud
-import com.example.tutoriasuvg.data.repository.TutoriasRepository
-import com.example.tutoriasuvg.ui.theme.TutoriasUVGTheme
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.serialization.Serializable
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePageAdmin(
-    tutoriasRepository: TutoriasRepository,
-    onProfileClick: () -> Unit,
-    onVerProgresosClick: () -> Unit,
-    onNotificacionesClick: () -> Unit
+    viewModel: NotificacionesViewModel,
+    onProfileClick: () -> Unit // Navegación al perfil del administrador
 ) {
-    val viewModel: HomePageAdminViewModel = viewModel(
-        factory = HomePageAdminViewModelFactory(tutoriasRepository)
-    )
-
-    val solicitudes = viewModel.solicitudes.collectAsState().value
     Scaffold(
-        topBar = { AdminAppBar(onProfileClick = onProfileClick) },
-        bottomBar = {
-            AdminBottomNavigationBar(
-                onVerProgresosClick = onVerProgresosClick,
-                onNotificacionesClick = onNotificacionesClick
-            )
-        }
+        topBar = { AdminAppBar(onProfileClick = onProfileClick) }
     ) { paddingValues ->
-        if (solicitudes.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No tienes solicitudes de tutorías por asignar",
-                    fontSize = 16.sp,
-                    color = Color.Black
-                )
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(16.dp)
-            ) {
-                solicitudes.forEach { solicitud ->
-                    CardSolicitud(
-                        nombreEstudiante = solicitud.nombreEstudiante,
-                        tutoria = solicitud.tutoria,
-                        jornada = solicitud.jornada,
-                        diasPreferencia = solicitud.diasPreferencia
+        val notificaciones by viewModel.notificaciones.collectAsState()
+        val tutoresDisponibles by viewModel.tutoresDisponibles.collectAsState()
+        val coroutineScope = rememberCoroutineScope()
+
+        var showDialog by remember { mutableStateOf(false) }
+        var currentSolicitud by remember { mutableStateOf<Solicitud?>(null) }
+        var selectedDate by remember { mutableStateOf("") }
+        var selectedStartTime by remember { mutableStateOf("") }
+        var selectedEndTime by remember { mutableStateOf("") }
+        var selectedLocation by remember { mutableStateOf("") }
+        var selectedTutorId by remember { mutableStateOf<String?>(null) }
+
+        LaunchedEffect(Unit) {
+            viewModel.cargarNotificaciones()
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (notificaciones.isEmpty()) {
+                // Mensaje cuando no hay notificaciones
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No hay notificaciones disponibles",
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            } else {
+                // Mostrar lista de notificaciones
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(notificaciones) { notificacion ->
+                        NotificacionCard(
+                            notificacion = notificacion,
+                            onAsignarTutorClick = {
+                                currentSolicitud = notificacion.solicitud
+                                viewModel.obtenerTutoresParaCurso(notificacion.titulo)
+                                showDialog = true
+                            }
+                        )
+                    }
                 }
             }
-        }
-    }
-}
 
-@Composable
-fun CardSolicitud(
-    nombreEstudiante: String,
-    tutoria: String,
-    jornada: String,
-    diasPreferencia: String
-) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, Color.LightGray),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF007F39))
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.today),
-                    contentDescription = "Icono de solicitud",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
+            // Dialogo para asignar tutor
+            if (showDialog) {
+                AsignarTutorDialog(
+                    tutoresDisponibles = tutoresDisponibles,
+                    selectedTutorId = selectedTutorId,
+                    selectedDate = selectedDate,
+                    selectedStartTime = selectedStartTime,
+                    selectedEndTime = selectedEndTime,
+                    selectedLocation = selectedLocation,
+                    onTutorSelect = { selectedTutorId = it },
+                    onDateChange = { selectedDate = it },
+                    onStartTimeChange = { selectedStartTime = it },
+                    onEndTimeChange = { selectedEndTime = it },
+                    onLocationChange = { selectedLocation = it },
+                    onDismiss = { showDialog = false },
+                    onConfirm = {
+                        coroutineScope.launch {
+                            currentSolicitud?.let { solicitud ->
+                                viewModel.asignarTutor(
+                                    solicitud = solicitud,
+                                    tutorId = selectedTutorId ?: return@launch,
+                                    date = selectedDate,
+                                    location = selectedLocation,
+                                    time = "$selectedStartTime - $selectedEndTime"
+                                )
+                            }
+                            selectedTutorId = null
+                            selectedDate = ""
+                            selectedStartTime = ""
+                            selectedEndTime = ""
+                            selectedLocation = ""
+                            showDialog = false
+                        }
+                    }
                 )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = nombreEstudiante, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Tutoría solicitada: $tutoria", fontSize = 14.sp, color = Color.Black)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Jornada solicitada: $jornada", fontSize = 14.sp, color = Color.Black)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Días de preferencia: $diasPreferencia", fontSize = 14.sp, color = Color.Black)
             }
         }
     }
 }
 
-@Composable
-fun AdminBottomNavigationBar(
-    onVerProgresosClick: () -> Unit,
-    onNotificacionesClick: () -> Unit
-) {
-    NavigationBar(
-        containerColor = Color(0xFF007F39)
-    ) {
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.assignment),
-                    contentDescription = "Asignar tutorías"
-                )
-            },
-            label = { Text("Asignar tutorías") },
-            selected = true,
-            onClick = { /* Acción para asignar tutorías */ },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color.White
-            )
-        )
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.schedule),
-                    contentDescription = "Ver progresos"
-                )
-            },
-            label = { Text("Ver progresos") },
-            selected = false,
-            onClick = onVerProgresosClick,
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color.White
-            )
-        )
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Notifications,
-                    contentDescription = "Notificaciones"
-                )
-            },
-            label = { Text("Notificaciones") },
-            selected = false,
-            onClick = onNotificacionesClick,
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color.White
-            )
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -224,49 +144,11 @@ fun AdminAppBar(onProfileClick: () -> Unit) {
             IconButton(onClick = onProfileClick) {
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
-                    contentDescription = "User Icon",
-                    modifier = Modifier.size(24.dp),
+                    contentDescription = "Perfil de Administrador",
                     tint = Color.White
                 )
             }
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color(0xFF007F39)
-        )
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color(0xFF007F39))
     )
 }
-
-@Preview(showBackground = true)
-@Composable
-fun HomePageAdminWithSolicitudesPreview() {
-    val tutoriasRepository = TutoriasRepository().apply {
-        actualizarSolicitudes(
-            listOf(
-                Solicitud(
-                    id = "1",
-                    courseName = "Ecuaciones Diferenciales I",
-                    days = listOf("Jueves"),
-                    shift = "Vespertina",
-                    tutorId = null
-                ),
-                Solicitud(
-                    id = "2",
-                    courseName = "Matemática Discreta I",
-                    days = listOf("Martes", "Viernes"),
-                    shift = "Matutina",
-                    tutorId = null
-                )
-            )
-        )
-    }
-
-    TutoriasUVGTheme {
-        HomePageAdmin(
-            tutoriasRepository = tutoriasRepository,
-            onProfileClick = { /* Acción para el perfil */ },
-            onVerProgresosClick = { /* Acción para ver progresos */ },
-            onNotificacionesClick = { /* Acción para notificaciones */ }
-        )
-    }
-}
-
